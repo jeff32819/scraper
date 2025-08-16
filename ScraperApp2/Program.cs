@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ using ScraperCode.DbCtx;
 
 
 const string dbConnString = "server=.\\dev14;database=WebScraper;trusted_connection=true;TrustServerCertificate=True";
+var appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
 
 var hostService = Host.CreateDefaultBuilder(args)
     .ConfigureLogging(logging =>
@@ -34,6 +36,7 @@ logger.SetFileTarget(filePaths.Log);
 logger.SetDbTarget(dbConnString);
 var log = logger.GetLogger();
 
+Console.Title = $"ScraperApp2 (v{appVersion})";
 
 var devServer = "panamacity";
 if (RunCode.IsDevServer(devServer))
