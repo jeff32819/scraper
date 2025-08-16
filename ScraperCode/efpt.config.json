@@ -1,0 +1,118 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "WebScraperContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.0",
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "DbCtx",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "ScraperCode",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[fileTypeAllowedToScrapeTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[hostTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[linkTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[logTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[pageTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[scrapeTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[hostPageCountQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[hostPageLinkErrorsQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[hostQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[hostWithoutAnyPages]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[pageLinkQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[pageScrapeQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[scapeLinksThatShouldBeInPages]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[scrapeQueueQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[deleteHostScrapeByIdSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[deleteHostScrapeByNameSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[fixAbsoluteUri]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[pageDeleteWhereHostIsSkipped]",
+         "ObjectType": 1
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}
