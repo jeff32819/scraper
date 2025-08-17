@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
-
+using System.Diagnostics.CodeAnalysis;
+using System.Net.WebSockets;
+using System.Text.RegularExpressions;
 using ScraperCode.DbCtx;
 using ScraperCode.Models;
 
@@ -22,7 +24,6 @@ public class ScrapeLogic
     /// Adding a page happens when a scrape is searched for and the host is being monitored.
     /// </summary>
     /// <param name="link"></param>
-    /// <param name="maxPageToScrape"></param>
     public void AddPage(string link)
     {
         UriSections = new UriSections(link);
@@ -35,7 +36,6 @@ public class ScrapeLogic
     /// Fix -- add pages that are in scrape table that the host should be monitored.
     /// </summary>
     /// <param name="scrape"></param>
-    /// <param name="maxPageToScrape"></param>
     public void AddPage(scapeLinksThatShouldBeInPages scrape)
     {
         UriSections = new UriSections(scrape.absoluteUri);
@@ -54,10 +54,63 @@ public class ScrapeLogic
         UriSections = new UriSections(link.absoluteUri);
         link.absoluteUri = CalcAbsoluteUri();
         Db.HostAddIfNotExists(UriSections.Uri); // if not exists
+        
+        var skipLogic = SkipVerifyingLinkCalc(link.absoluteUri);
+        if (skipLogic.ShouldSkip)
+        {
+            link.scrapeId = -1; // mark as skipped
+            link.skipReason = skipLogic.Reason;
+            Db.LinkAdd(link);
+            return;
+        }
         var scrape = Db.ScrapeAdd(GetScrapeObj()); // if not exists
         link.scrapeId = scrape.id;
         Db.LinkAdd(link); // always added, page links are deleted before adding new ones
     }
+
+
+    [SuppressMessage("ReSharper", "ConvertIfStatementToReturnStatement")]
+    private static SkipVerifyingLinkModel SkipVerifyingLinkCalc(string link)
+    {
+        if (string.IsNullOrEmpty(link))
+        {
+            return new SkipVerifyingLinkModel("BLANK_LINK");
+        }
+        link = link.Trim();
+        if (Regex.IsMatch(link, "^http", RegexOptions.IgnoreCase))
+        {
+            return new SkipVerifyingLinkModel();
+        }
+        if (Regex.IsMatch(link, "about:blank", RegexOptions.IgnoreCase))
+        {
+            return new SkipVerifyingLinkModel("about:blank");
+        }
+        var colonIndex = link.IndexOf(':');
+        if (colonIndex < 1)
+        {
+            return link.Length < 100 ? new SkipVerifyingLinkModel(link) : new SkipVerifyingLinkModel(link[..100]);
+        }
+        var valueBeforeColon = link[..colonIndex];
+        return new SkipVerifyingLinkModel(valueBeforeColon);
+
+    }
+
+    public class SkipVerifyingLinkModel
+    {
+        public SkipVerifyingLinkModel()
+        {
+            ShouldSkip = false;
+            Reason = string.Empty;
+        }
+        public SkipVerifyingLinkModel(string reason)
+        {
+            ShouldSkip = true;
+            Reason = reason;
+        }
+        public bool ShouldSkip { get; }
+        public string Reason { get; }
+    }
+
 
 
     /// <summary>

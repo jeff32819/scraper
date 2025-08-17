@@ -38,7 +38,7 @@ var log = logger.GetLogger();
 
 Console.Title = $"ScraperApp2 (v{appVersion})";
 
-var devServer = "panamacity";
+const string devServer = "panamacity";
 if (RunCode.IsDevServer(devServer))
 {
     Console.WriteLine($"DEV SERVER: {devServer}");
@@ -59,7 +59,7 @@ if (RunCode.IsDevServer(devServer))
     }
     RunCode.AddManual(dbSvc, "https://jeff32819.com");
 }
-else
+else // NOT DEV SERVER
 {
     await RunCode.FromFile(dbSvc, filePaths, log);
 }

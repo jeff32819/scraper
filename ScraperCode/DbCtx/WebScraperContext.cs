@@ -181,6 +181,9 @@ public partial class WebScraperContext : DbContext
             entity.Property(e => e.rawLink)
                 .IsRequired()
                 .IsUnicode(false);
+            entity.Property(e => e.skipReason)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.page).WithMany(p => p.linkTbl)
                 .HasForeignKey(d => d.pageId)

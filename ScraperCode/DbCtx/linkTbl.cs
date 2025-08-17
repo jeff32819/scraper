@@ -25,6 +25,8 @@ public partial class linkTbl
 
     public DateTime addedDateTime { get; set; }
 
+    public string skipReason { get; set; }
+
     public virtual pageTbl page { get; set; }
 
     public virtual scrapeTbl scrape { get; set; }
