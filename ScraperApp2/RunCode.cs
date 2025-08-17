@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using CodeBase;
 using ScraperCode;
 
 namespace ScraperApp2;
@@ -76,8 +77,6 @@ public static class RunCode
 
     public static async Task FromFile(DbService dbSvc, LogFilePath filePaths, NLogger log)
     {
-
-
         const int maxPageToScrape = 100;
         StaticData.Update(dbSvc);
 

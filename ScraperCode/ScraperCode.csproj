@@ -25,4 +25,8 @@
     <PackageReference Include="NLog.Schema" Version="6.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CodeBase\CodeBase.csproj" />
+  </ItemGroup>
+
 </Project>

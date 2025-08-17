@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
-
+using CodeBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
-using ScraperApp2;
 
 using ScraperCode;
 using ScraperCode.DbCtx;

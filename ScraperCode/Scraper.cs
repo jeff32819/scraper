@@ -1,4 +1,5 @@
-﻿using ScraperCode.Models;
+﻿using CodeBase;
+using ScraperCode.Models;
 
 namespace ScraperCode;
 

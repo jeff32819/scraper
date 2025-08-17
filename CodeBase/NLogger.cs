@@ -1,7 +1,5 @@
 ﻿using NLog;
-
-
-namespace ScraperCode
+namespace CodeBase
 {
     public class NLogger(Logger logger)
     {
