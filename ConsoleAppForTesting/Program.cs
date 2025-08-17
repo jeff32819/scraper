@@ -35,3 +35,6 @@ var logger = new NLogSetup(true);
 logger.SetFileTarget(filePaths.Log);
 logger.SetDbTarget(dbConnString);
 var log = logger.GetLogger();
+
+
+

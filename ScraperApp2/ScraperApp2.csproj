@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CodeBase\CodeBase.csproj" />
     <ProjectReference Include="..\ScraperCode\ScraperCode.csproj" />
   </ItemGroup>
 
