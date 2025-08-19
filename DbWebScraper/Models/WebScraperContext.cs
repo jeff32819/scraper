@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace ScraperCode.DbCtx;
+namespace DbWebScraper.Models;
 
 public partial class WebScraperContext : DbContext
 {

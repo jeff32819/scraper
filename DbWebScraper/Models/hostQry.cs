@@ -3,21 +3,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace ScraperCode.DbCtx;
+namespace DbWebScraper.Models;
 
-public partial class hostPageCountQry
+public partial class hostQry
 {
     public int id { get; set; }
 
     public string host { get; set; }
 
-    public int maxPageToScrape { get; set; }
-
     public int? pageCount { get; set; }
 
-    public int? linkCount { get; set; }
-
     public string path { get; set; }
+
+    public int maxPageToScrape { get; set; }
 
     public string runNotes { get; set; }
 

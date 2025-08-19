@@ -3,27 +3,23 @@
 using System;
 using System.Collections.Generic;
 
-namespace ScraperCode.DbCtx;
+namespace DbWebScraper.Models;
 
-public partial class hostTbl
+public partial class hostPageCountQry
 {
     public int id { get; set; }
 
+    public string host { get; set; }
+
     public int maxPageToScrape { get; set; }
 
-    public string host { get; set; }
+    public int? pageCount { get; set; }
+
+    public int? linkCount { get; set; }
 
     public string path { get; set; }
 
     public string runNotes { get; set; }
 
     public DateTime addedDateTime { get; set; }
-
-    public bool reportDone { get; set; }
-
-    public string category { get; set; }
-
-    public int redirectStatusCode { get; set; }
-
-    public string redirectedToUrl { get; set; }
 }

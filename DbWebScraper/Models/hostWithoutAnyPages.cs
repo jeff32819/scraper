@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ScraperCode.DbCtx;
+namespace DbWebScraper.Models;
 
 public partial class hostWithoutAnyPages
 {

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using DbWebScraper.Models;
 
-using ScraperCode.DbCtx;
 
 namespace ScraperCode;
 

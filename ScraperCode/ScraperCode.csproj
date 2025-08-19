@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DbScraper02\DbScraper02.csproj" />
+    <ProjectReference Include="..\DbWebScraper\DbWebScraper.csproj" />
   </ItemGroup>
 
 </Project>

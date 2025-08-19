@@ -1,10 +1,11 @@
 ﻿using CodeBase;
 using DbScraper02.Models;
+using DbWebScraper.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ScraperCode.DbCtx;
+
 
 namespace ScraperCode;
 

@@ -1,4 +1,6 @@
-﻿using ScraperCode.DbCtx;
+﻿
+
+using DbWebScraper.Models;
 
 namespace ScraperCode.Models;
 

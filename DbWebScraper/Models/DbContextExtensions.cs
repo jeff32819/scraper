@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ScraperCode.DbCtx
+namespace DbWebScraper.Models
 {
     public static class DbContextExtensions
     {

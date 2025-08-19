@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using ScraperCode.DbCtx;
+using DbWebScraper.Models;
+
 
 namespace ScraperCode.Models;
 

@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DbWebScraper.Models;
+using Microsoft.EntityFrameworkCore;
 
-using ScraperCode.DbCtx;
+
 
 namespace ScraperCode
 {

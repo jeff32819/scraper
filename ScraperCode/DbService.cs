@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using DbWebScraper.Models;
 using Jeff32819DLL.MiscCore20;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ScraperCode.DbCtx;
 using ScraperCode.Models;
 
 namespace ScraperCode;

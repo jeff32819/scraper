@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using AngleSharp;
+using DbWebScraper.Models;
 using Jeff32819DLL.HtmlParser;
-using ScraperCode.DbCtx;
 using ScraperCode.Models;
 
 namespace ScraperCode;
