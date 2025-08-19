@@ -10,27 +10,27 @@ public static class HttpClientHelper
 {
     public static async Task<IScrapeRequest> GetAsync(Uri url)
     {
-        var response = await GetFromHttpClient(url);
+        var responseContainer = await GetFromHttpClient(url);
         var wasRedirected = false;
         var redirectedStatusCode = 0;
         var redirectedFromUrl = "";
 
-        if (response.IsRedirected)
+        if (responseContainer.HttpClientResponse.IsRedirected)
         {
             wasRedirected = true;
             redirectedFromUrl = url.OriginalString;
-            redirectedStatusCode = response.StatusCode;
-            response = await GetFromHttpClient(response.RedirectedLocation);
+            redirectedStatusCode = responseContainer.HttpClientResponse.StatusCode;
+            responseContainer = await GetFromHttpClient(responseContainer.HttpClientResponse.RedirectedLocation);
         }
 
         return new ScrapeRequest
         {
-            Url = response.Response?.RequestMessage?.RequestUri?.OriginalString ?? throw new Exception("RequestUri should not be null"),
-            StatusCode = response.StatusCodeToString,
-            ContentType = response.ContentType ?? "UNKNOWN",
-            Html = await response.Content,
-            ResponseHeaders = response.ResponseHeaders,
-            ContentHeaders = response.ContentHeaders,
+            Url = responseContainer.HttpClientResponse.Response?.RequestMessage?.RequestUri?.OriginalString ?? throw new Exception("RequestUri should not be null"),
+            StatusCode = responseContainer.HttpClientResponse.StatusCodeToString,
+            ContentType = responseContainer.HttpClientResponse.ContentType ?? "UNKNOWN",
+            Html = await responseContainer.HttpClientResponse.Content,
+            ResponseHeaders = responseContainer.HttpClientResponse.ResponseHeaders,
+            ContentHeaders = responseContainer.HttpClientResponse.ContentHeaders,
             WasRedirected = wasRedirected,
             RedirectStatusCode = redirectedStatusCode,
             RedirectedFromUrl = redirectedFromUrl
@@ -39,32 +39,48 @@ public static class HttpClientHelper
 
 
 
-    public static async Task<HttpClientResponse> GetHttpClientResponse(Uri url)
+    public static async Task<HttpClientResponseContainer> GetHttpClientResponse(Uri url)
     {
-        var response = await GetFromHttpClient(url);
-        if (response.IsRedirected)
+        var responseContainer = await GetFromHttpClient(url);
+        if (responseContainer.IsRedirected)
         {
-            response = await GetFromHttpClient(response.RedirectedLocation, new RedirectedModel
+            responseContainer = await GetFromHttpClient(responseContainer.HttpClientResponse.RedirectedLocation, new RedirectedModel
             {
-                FromUrl = response.RequestUri,
-                StatusCode = response.StatusCode
+                FromUrl = responseContainer.RequestUri,
+                StatusCode = responseContainer.HttpClientResponse.StatusCode
             });
         }
-        return response;
+        return responseContainer;
     }
 
 
 
-    private static async Task<HttpClientResponse> GetFromHttpClient(Uri url, RedirectedModel? redirectedFrom = null)
+    private static async Task<HttpClientResponseContainer> GetFromHttpClient(Uri url, RedirectedModel? redirectedFrom = null)
     {
-        var handler = new HttpClientHandler
+
+        var rv = new HttpClientResponseContainer
         {
-            AllowAutoRedirect = false
+            RequestUri = url
         };
-        var client = new HttpClient(handler);
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/74.0.3729.1235");
-        client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
-        var tmp = await client.GetAsync(url);
-        return new HttpClientResponse(tmp, redirectedFrom);
+        try
+        {
+            var handler = new HttpClientHandler
+            {
+                AllowAutoRedirect = false
+            };
+            var client = new HttpClient(handler);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/74.0.3729.1235");
+            client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
+            var tmp = await client.GetAsync(url);
+            rv.HttpClientResponse = new HttpClientResponse(tmp, redirectedFrom);
+            rv.IsRedirected = rv.HttpClientResponse.IsRedirected;
+            rv.Success = true;
+        }
+        catch (Exception ex)
+        {
+            rv.ErrorMessage = ex.Message;
+        }
+
+        return rv;
     }
 }

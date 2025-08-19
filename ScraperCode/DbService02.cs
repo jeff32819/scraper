@@ -2,6 +2,8 @@
 
 using DbScraper02.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using ScraperCode.Models;
 
 namespace ScraperCode
 {
@@ -20,13 +22,44 @@ namespace ScraperCode
         public async Task<hostTbl> HostAdd(Uri uri, int maxPageToScrape, string category)
         {
             var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
-            if (tmp.RedirectedFrom == null)
+
+            if (!tmp.Success)
             {
-                return await HostAddNonRedirect(maxPageToScrape, category, tmp);
+                return await HostAddError(tmp, maxPageToScrape, category);
             }
-            await HostAddRedirect(maxPageToScrape, category, tmp);
-            return await HostAddNonRedirect(maxPageToScrape, category, tmp);
+            if (!tmp.IsRedirected)
+            {
+                return await HostAddNonRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
+            }
+            await HostAddRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
+            return await HostAddNonRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
         }
+
+        private async Task<hostTbl> HostAddError(HttpClientResponseContainer tmp, int maxPageToScrape, string category)
+        {
+            var rs = DbCtx.hostTbl.SingleOrDefault(x => x.host == tmp.RequestUri.Host);
+            if (rs != null)
+            {
+                rs.errorMessage = Jeff32819DLL.MiscCore20.Code.Truncate(tmp.ErrorMessage, 1000);
+                rs.redirectStatusCode = 0;
+                rs.redirectedToHost = "";
+                rs.redirectLastVerified = null;
+                await DbCtx.SaveChangesAsync();
+                return rs;
+            }
+            var newRs = DbCtx.hostTbl.Add(new hostTbl
+            {
+                maxPageToScrape = maxPageToScrape,
+                category = category,
+                host = tmp.RequestUri.Host,
+                redirectedToHost = "",
+                redirectStatusCode = 0,
+                redirectLastVerified = null,
+            });
+            await DbCtx.SaveChangesAsync();
+            return newRs.Entity;
+        }
+
         private async Task<hostTbl> HostAddRedirect(int maxPageToScrape, string category, Models.HttpClientResponse response)
         {
             var redirectedHost = response.RedirectedFrom!.FromUrl.Host;

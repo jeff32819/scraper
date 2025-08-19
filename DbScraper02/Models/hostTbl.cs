@@ -24,4 +24,6 @@ public partial class hostTbl
     public string redirectedToHost { get; set; }
 
     public DateTime? redirectLastVerified { get; set; }
+
+    public string errorMessage { get; set; }
 }

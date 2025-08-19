@@ -14,7 +14,7 @@ setup.DbSvc02.DbResetWithoutWarning();
 
 
 
-var xxx = await  setup.DbSvc02.HostAdd(new Uri("https://www.brittanymooreproduction.com"), 100, "test");
+var xxx = await  setup.DbSvc02.HostAdd(new Uri("https://novastardesign.com"), 100, "test");
 
 
 Console.WriteLine();

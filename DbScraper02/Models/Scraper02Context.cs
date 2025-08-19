@@ -31,6 +31,9 @@ public partial class Scraper02Context : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasDefaultValue("");
+            entity.Property(e => e.errorMessage)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
             entity.Property(e => e.host)
                 .IsRequired()
                 .HasMaxLength(100)
