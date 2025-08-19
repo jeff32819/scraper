@@ -6,11 +6,16 @@ namespace ScraperCode.Models;
 
 public class HttpClientResponse
 {
-    public HttpClientResponse(HttpResponseMessage? response)
+    public HttpClientResponse(HttpResponseMessage? response, RedirectedModel? redirectedFrom = null)
     {
         Response = response ?? throw new ArgumentNullException(nameof(response), "HttpResponseMessage cannot be null.");
+        RedirectedFrom = redirectedFrom;
+        RequestUri = Response.RequestMessage?.RequestUri ?? throw new InvalidOperationException();
         Init();
     }
+
+    public RedirectedModel? RedirectedFrom { get; set; }
+    public Uri RequestUri { get; }
     public HttpResponseMessage Response { get; }
 
     public Dictionary<string, IEnumerable<string>> ResponseHeaders { get; set; } = new(StringComparer.OrdinalIgnoreCase);
@@ -46,4 +51,11 @@ public class HttpClientResponse
             ContentHeaders[header.Key] = header.Value;
         }
     }
+
+    public class RedirectedModel
+    {
+        public Uri FromUrl { get; set; }
+        public int StatusCode { get; set; }
+    }
+
 }

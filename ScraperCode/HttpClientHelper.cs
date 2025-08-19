@@ -1,5 +1,7 @@
 ﻿using ScraperCode.Models;
 
+using static ScraperCode.Models.HttpClientResponse;
+
 // ReSharper disable InvertIf
 
 namespace ScraperCode;
@@ -35,7 +37,25 @@ public static class HttpClientHelper
         };
     }
 
-    private static async Task<HttpClientResponse> GetFromHttpClient(Uri url)
+
+
+    public static async Task<HttpClientResponse> GetHttpClientResponse(Uri url)
+    {
+        var response = await GetFromHttpClient(url);
+        if (response.IsRedirected)
+        {
+            response = await GetFromHttpClient(response.RedirectedLocation, new RedirectedModel
+            {
+                FromUrl = response.RequestUri,
+                StatusCode = response.StatusCode
+            });
+        }
+        return response;
+    }
+
+
+
+    private static async Task<HttpClientResponse> GetFromHttpClient(Uri url, RedirectedModel? redirectedFrom = null)
     {
         var handler = new HttpClientHandler
         {
@@ -45,6 +65,6 @@ public static class HttpClientHelper
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/74.0.3729.1235");
         client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
         var tmp = await client.GetAsync(url);
-        return new HttpClientResponse(tmp);
+        return new HttpClientResponse(tmp, redirectedFrom);
     }
 }

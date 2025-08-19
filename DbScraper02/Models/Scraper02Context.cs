@@ -13,10 +13,32 @@ public partial class Scraper02Context : DbContext
     {
     }
 
+    public virtual DbSet<hostTbl> hostTbl { get; set; }
+
     public virtual DbSet<logTbl> logTbl { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<hostTbl>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PK_hostPathToScrapeTbl");
+
+            entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.category)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("");
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.maxPageToScrape).HasDefaultValue(-1);
+            entity.Property(e => e.redirectedToHost)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<logTbl>(entity =>
         {
             entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getdate())");

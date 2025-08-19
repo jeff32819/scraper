@@ -20,22 +20,8 @@ const string devServer = "panamacity";
 if (RunCode.IsDevServer(devServer))
 {
     Console.WriteLine($"DEV SERVER: {devServer}");
-    Console.WriteLine("Press 'C' to clear the database or any key to continue...");
-    var key = Console.ReadKey(true);
-    if(key.Key == ConsoleKey.C)
-    {
-        Console.WriteLine("Clearing database...");
-        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[linkTbl]");
-        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[pageTbl]");
-        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[scrapeTbl]");
-        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[hostTbl]");
-        Console.WriteLine("Database cleared.");
-    }
-    else
-    {
-        Console.WriteLine("Continuing without clearing the database.");
-    }
-    RunCode.AddManual(setup.DbSvc01, "https://jeff32819.com");
+    //  add later after using db2 // setup.DbSvc02.DbReset();
+    RunCode.AddManual(setup.DbSvc01, "https://www.brittanymooreproduction.com");
 }
 else // NOT DEV SERVER
 {
