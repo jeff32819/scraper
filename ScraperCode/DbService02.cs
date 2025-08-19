@@ -49,6 +49,7 @@ namespace ScraperCode
             }
             var newRs = DbCtx.hostTbl.Add(new hostTbl
             {
+                errorMessage = Jeff32819DLL.MiscCore20.Code.Truncate(tmp.ErrorMessage, 1000),
                 maxPageToScrape = maxPageToScrape,
                 category = category,
                 host = tmp.RequestUri.Host,
