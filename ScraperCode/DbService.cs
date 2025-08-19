@@ -1,6 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using Jeff32819ApiModels.NodePing.Push;
 using Jeff32819DLL.MiscCore20;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -213,6 +211,8 @@ public class DbService
     //    return DbCtx.pageTbl.SingleOrDefault(x => x.absoluteUri == tmp);
     //}
 
+
+
     /// <summary>
     ///     Links do not need to be checked before being added, as
     ///     they are always deleted before being added for a page.
@@ -224,7 +224,7 @@ public class DbService
     {
         if (!Regex.IsMatch(link.absoluteUri, "^http", RegexOptions.IgnoreCase))
         {
-            // jeff2do need to later log tel & email...
+            // jeff2do need to later log tel & email
             return;
             //throw new Exception("Link must start with http or https");
         }
@@ -267,12 +267,14 @@ public class DbService
                 {
                     throw;
                 }
+
                 TimeoutRetry.Delay();
             }
         }
 
         throw new Exception("timeout");
     }
+
     public void PageUpdateLinkCount(int pageId, int linkCount)
     {
         TimeoutRetry.Reset();
@@ -308,10 +310,12 @@ public class DbService
                 {
                     throw;
                 }
+
                 TimeoutRetry.Delay();
             }
         }
     }
+
     public void LinksDeleteForPage(int pageId)
     {
         TimeoutRetry.Reset();
@@ -343,6 +347,7 @@ public class DbService
                 {
                     throw;
                 }
+
                 TimeoutRetry.Delay();
             }
         }

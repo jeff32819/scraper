@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp.Io" Version="1.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
     <PackageReference Include="Jeff32819DLL.HtmlParser" Version="1.0.47" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />

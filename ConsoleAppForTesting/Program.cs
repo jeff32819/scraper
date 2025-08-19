@@ -37,4 +37,8 @@ logger.SetDbTarget(dbConnString);
 var log = logger.GetLogger();
 
 
+// await ConsoleAppForTesting.Test.GetFromWeb(dbSvc, "https://business.lakenonacc.org");
+var result1 = await ConsoleAppForTesting.Test.GetFromWeb(dbSvc, "https://sebastianmoving.net");
+var result2 = await ConsoleAppForTesting.Test.GetFromWeb(dbSvc, "https://www.sebastianmoving.net");
 
+Console.WriteLine();

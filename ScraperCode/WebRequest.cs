@@ -1,6 +1,11 @@
 ﻿using AngleSharp;
+
 using HtmlAgilityPack;
+
 using Jeff32819DLL.MiscCore20;
+
+using Microsoft.EntityFrameworkCore;
+
 using ScraperCode.Models;
 
 namespace ScraperCode;
@@ -71,8 +76,7 @@ public static class WebRequest
             {
                 Url = url,
                 Html = ex.Message,
-                StatusCode = "ERROR",
-                HeadersOnly = headersOnly
+                StatusCode = "ERROR"
             };
         }
     }
@@ -85,17 +89,8 @@ public static class WebRequest
         client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
         var httpResponse = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
         // jeff2do // maybe use later // response.EnsureSuccessStatusCode();  // Throws if not 2xx
-        var response = new HttpClientResponse(httpResponse, httpCompletionOption);
-        return new ScrapeRequest
-        {
-            Url = url,
-            StatusCode = response.StatusCodeToString,
-            ContentType = response.ContentType ?? "UNKNOWN",
-            Html = await response.Content,
-            HeadersOnly = headersOnly,
-            ResponseHeaders = response.ResponseHeaders,
-            ContentHeaders = response.ContentHeaders
-        };
+
+        return await HttpClientHelper.GetAsync(new Uri(url));
     }
 
     /// <summary>
@@ -174,8 +169,7 @@ public static class WebRequest
             {
                 Html = ex.Message,
                 StatusCode = "ERROR",
-                Url = url,
-                HeadersOnly = headersOnly
+                Url = url
             };
         }
     }
@@ -196,8 +190,7 @@ public static class WebRequest
         {
             Html = document.DocumentElement.OuterHtml,
             StatusCode = "anglesharp-does-not-report", // does not report status code
-            Url = url,
-            HeadersOnly = headersOnly
+            Url = url
         };
     }
 
