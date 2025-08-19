@@ -10,13 +10,13 @@ namespace ScraperCode
 {
     public static class HostBuilderFactory
     {
-        public static HostBuilderSetup Create(string[] args)
+        public static HostBuilderSetup Create()
         {
             const string dbConnString1 = "server=.\\dev14;database=WebScraper;trusted_connection=true;TrustServerCertificate=True";
             const string dbConnString2 = "server=.\\dev14;database=Scraper02;trusted_connection=true;TrustServerCertificate=True";
 
     
-            var hostService = Host.CreateDefaultBuilder(args)
+            var hostService = Host.CreateDefaultBuilder() // could also pass args here from command line
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders(); // Optional: removes default providers

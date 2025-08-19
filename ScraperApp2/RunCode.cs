@@ -29,7 +29,7 @@ public static class RunCode
                 continue;
             }
 
-            if (url.StartsWith("*"))
+            if (url.StartsWith('*'))
             {
                 log.Info($"returning {arr.Count} items");
                 log.Info("Found line with '*'... EXITING");

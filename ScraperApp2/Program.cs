@@ -9,36 +9,10 @@ using ScraperCode;
 using ScraperCode.DbCtx;
 
 
-const string dbConnString = "server=.\\dev14;database=WebScraper;trusted_connection=true;TrustServerCertificate=True";
+
 var appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
 
-var hostService = Host.CreateDefaultBuilder(args)
-    .ConfigureLogging(logging =>
-    {
-        logging.ClearProviders(); // Optional: removes default providers
-        //logging.AddConsole();
-        //logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning); // Only show warnings/errors from EF Core
-    })
-    .ConfigureServices((context, services) =>
-    {
-        services.AddDbContext<WebScraperContext>(opt =>
-        {
-            opt.UseSqlServer(dbConnString);
-            //opt.LogTo(Console.WriteLine, LogLevel.Warning);
-            opt.LogTo(_ => { }); // Uncomment to disable all EF Core logging
-        });
-        services.AddTransient<DbService>();
-    })
-    .Build();
-var dbSvc = hostService.Services.GetRequiredService<DbService>();
-
-
-
-var filePaths = new LogFilePath(@"t:\ScraperApp2");
-var logger = new NLogSetup(true);
-logger.SetFileTarget(filePaths.Log);
-logger.SetDbTarget(dbConnString);
-var log = logger.GetLogger();
+var setup = ScraperCode.HostBuilderFactory.Create();
 
 Console.Title = $"ScraperApp2 (v{appVersion})";
 
@@ -51,27 +25,27 @@ if (RunCode.IsDevServer(devServer))
     if(key.Key == ConsoleKey.C)
     {
         Console.WriteLine("Clearing database...");
-        dbSvc.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[linkTbl]");
-        dbSvc.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[pageTbl]");
-        dbSvc.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[scrapeTbl]");
-        dbSvc.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[hostTbl]");
+        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[linkTbl]");
+        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[pageTbl]");
+        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[scrapeTbl]");
+        setup.DbSvc01.DbCtx.Database.ExecuteSqlRaw("DELETE FROM [WebScraper].[dbo].[hostTbl]");
         Console.WriteLine("Database cleared.");
     }
     else
     {
         Console.WriteLine("Continuing without clearing the database.");
     }
-    RunCode.AddManual(dbSvc, "https://jeff32819.com");
+    RunCode.AddManual(setup.DbSvc01, "https://jeff32819.com");
 }
 else // NOT DEV SERVER
 {
-    await RunCode.FromFile(dbSvc, filePaths, log);
+    await RunCode.FromFile(setup.DbSvc01, filePaths, log);
 }
 
 
 
 
-var scraper = new Scraper(dbSvc, log);
+var scraper = new Scraper(setup.DbSvc01, log);
 await scraper.ProcessScrapeHtml();
 
 
