@@ -1,18 +1,4 @@
-﻿using System.Net.WebSockets;
-using System.Reflection;
-using CodeBase;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-using ScraperCode;
-using ScraperCode.DbCtx;
-
-
-
-
-var setup = ScraperCode.HostBuilderFactory.Create();
+﻿var setup = ScraperCode.HostBuilderFactory.Create();
 
 
 
@@ -22,7 +8,7 @@ var setup = ScraperCode.HostBuilderFactory.Create();
 
 
 
-var result1 = await ConsoleAppForTesting.Test.GetFromWeb(setup.DbService1, "https://jeff32819.com");
+var result1 = await ConsoleAppForTesting.Test.GetFromWeb(setup.DbSvc01, "https://jeff32819.com");
 
 
 Console.WriteLine();

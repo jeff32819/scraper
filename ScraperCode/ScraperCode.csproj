@@ -28,4 +28,8 @@
     <PackageReference Include="NLog.Schema" Version="6.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DbScraper02\DbScraper02.csproj" />
+  </ItemGroup>
+
 </Project>

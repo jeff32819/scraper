@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScraperApp2", "ScraperApp2\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppForTesting", "ConsoleAppForTesting\ConsoleAppForTesting.csproj", "{3F086798-6ADC-4514-8037-D4258B699B29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbScraper02", "DbScraper02\DbScraper02.csproj", "{946CE035-17A8-42BC-ADF9-CB314B6C16D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{3F086798-6ADC-4514-8037-D4258B699B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F086798-6ADC-4514-8037-D4258B699B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F086798-6ADC-4514-8037-D4258B699B29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{946CE035-17A8-42BC-ADF9-CB314B6C16D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{946CE035-17A8-42BC-ADF9-CB314B6C16D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{946CE035-17A8-42BC-ADF9-CB314B6C16D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{946CE035-17A8-42BC-ADF9-CB314B6C16D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

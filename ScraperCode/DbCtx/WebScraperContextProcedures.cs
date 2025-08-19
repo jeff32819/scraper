@@ -149,5 +149,25 @@ namespace ScraperCode.DbCtx
 
             return _;
         }
+
+        public virtual async Task<int> scrapeTblDeleteRowsNotInPageAndLinksSpAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterreturnValue,
+            };
+            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[scrapeTblDeleteRowsNotInPageAndLinksSp]", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
     }
 }

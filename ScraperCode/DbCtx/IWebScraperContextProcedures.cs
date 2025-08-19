@@ -17,5 +17,6 @@ namespace ScraperCode.DbCtx
         Task<int> deleteHostScrapeByNameSpAsync(string host, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> fixAbsoluteUriAsync(string oldUri, string newUri, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> pageDeleteWhereHostIsSkippedAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> scrapeTblDeleteRowsNotInPageAndLinksSpAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

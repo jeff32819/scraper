@@ -86,6 +86,10 @@
       {
          "Name": "[dbo].[pageDeleteWhereHostIsSkipped]",
          "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[scrapeTblDeleteRowsNotInPageAndLinksSp]",
+         "ObjectType": 1
       }
    ],
    "UiHint": null,

@@ -1,17 +1,17 @@
 ﻿using System.Reflection;
+
 using CodeBase;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+
 using ScraperApp2;
+
 using ScraperCode;
-using ScraperCode.DbCtx;
 
 
 
 var appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
-
+var filePaths = new LogFilePath(@"t:\ScraperApp2");
 var setup = ScraperCode.HostBuilderFactory.Create();
 
 Console.Title = $"ScraperApp2 (v{appVersion})";
@@ -39,25 +39,22 @@ if (RunCode.IsDevServer(devServer))
 }
 else // NOT DEV SERVER
 {
-    await RunCode.FromFile(setup.DbSvc01, filePaths, log);
+    await RunCode.FromFile(setup.DbSvc01, filePaths, setup.Logger);
 }
 
-
-
-
-var scraper = new Scraper(setup.DbSvc01, log);
+var scraper = new Scraper(setup.DbSvc01, setup.Logger);
 await scraper.ProcessScrapeHtml();
 
 
 
 
-var reportRs = dbSvc.GetReportRs();
+var reportRs = setup.DbSvc01.GetReportRs();
 foreach (var item in reportRs)
 {
-    await ScrapeReport.Process(dbSvc, $"https://{item.host}");
+    await ScrapeReport.Process(setup.DbSvc01, $"https://{item.host}");
     item.reportDone = true;
-    dbSvc.DbCtx.hostTbl.Update(item);
-    dbSvc.DbCtx.SaveChanges();
+    setup.DbSvc01.DbCtx.hostTbl.Update(item);
+    setup.DbSvc01.DbCtx.SaveChanges();
     Console.WriteLine($"Report done for {item.host}");
 }
 
