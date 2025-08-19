@@ -22,6 +22,10 @@
       {
          "Name": "[dbo].[logTbl]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tmpHostTransferQry]",
+         "ObjectType": 3
       }
    ],
    "UiHint": null,

@@ -17,6 +17,8 @@ public partial class Scraper02Context : DbContext
 
     public virtual DbSet<logTbl> logTbl { get; set; }
 
+    public virtual DbSet<tmpHostTransferQry> tmpHostTransferQry { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<hostTbl>(entity =>
@@ -45,6 +47,23 @@ public partial class Scraper02Context : DbContext
             entity.Property(e => e.text)
                 .IsRequired()
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<tmpHostTransferQry>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("tmpHostTransferQry");
+
+            entity.Property(e => e.category)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.id).ValueGeneratedOnAdd();
         });
 
         OnModelCreatingPartial(modelBuilder);

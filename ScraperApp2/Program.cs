@@ -2,8 +2,6 @@
 
 using CodeBase;
 
-using Microsoft.EntityFrameworkCore;
-
 using ScraperApp2;
 
 using ScraperCode;
@@ -28,21 +26,30 @@ else // NOT DEV SERVER
     await RunCode.FromFile(setup.DbSvc01, filePaths, setup.Logger);
 }
 
-var scraper = new Scraper(setup.DbSvc01, setup.Logger);
-await scraper.ProcessScrapeHtml();
 
-
-
-
-var reportRs = setup.DbSvc01.GetReportRs();
-foreach (var item in reportRs)
+var rs = setup.DbSvc02.DbCtx.tmpHostTransferQry.ToList();
+foreach (var host in rs)
 {
-    await ScrapeReport.Process(setup.DbSvc01, $"https://{item.host}");
-    item.reportDone = true;
-    setup.DbSvc01.DbCtx.hostTbl.Update(item);
-    setup.DbSvc01.DbCtx.SaveChanges();
-    Console.WriteLine($"Report done for {item.host}");
+    Console.WriteLine($"Adding host: {host.host}");
+    await setup.DbSvc02.HostAdd(new Uri($"https://{host.host}"), host.maxPageToScrape, host.category);
 }
+
+
+//var scraper = new Scraper(setup.DbSvc01, setup.Logger);
+//await scraper.ProcessScrapeHtml();
+
+
+
+
+//var reportRs = setup.DbSvc01.GetReportRs();
+//foreach (var item in reportRs)
+//{
+//    await ScrapeReport.Process(setup.DbSvc01, $"https://{item.host}");
+//    item.reportDone = true;
+//    setup.DbSvc01.DbCtx.hostTbl.Update(item);
+//    setup.DbSvc01.DbCtx.SaveChanges();
+//    Console.WriteLine($"Report done for {item.host}");
+//}
 
 Console.WriteLine("");
 Console.WriteLine("DONE!!!       Press any key to exit");

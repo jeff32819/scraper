@@ -16,6 +16,7 @@ namespace ScraperCode
         public string DbConnString { get; }
         public Scraper02Context DbCtx { get; }
 
+        #region Host Methods
         public async Task<hostTbl> HostAdd(Uri uri, int maxPageToScrape, string category)
         {
             var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
@@ -61,6 +62,7 @@ namespace ScraperCode
             return newRs.Entity;
         }
 
+
         private async Task<hostTbl> HostAddNonRedirect(int maxPageToScrape, string category, Models.HttpClientResponse response)
         {
             var rs = DbCtx.hostTbl.SingleOrDefault(x => x.host == response.RequestUri.Host);
@@ -93,6 +95,9 @@ namespace ScraperCode
             return newRs.Entity;
         }
 
+        #endregion
+
+        #region Database Reset Methods
         public void DbReset()
         {
             Console.WriteLine("Press 'C' to clear the database or any key to continue...");
@@ -106,14 +111,18 @@ namespace ScraperCode
                 Console.WriteLine("Continuing without clearing the database.");
             }
         }
+
+
         public void DbResetWithoutWarning()
         {
             Console.WriteLine("Clearing database...");
-         //   DbCtx.Database.ExecuteSqlRaw("DELETE FROM [linkTbl]");
-          //  DbCtx.Database.ExecuteSqlRaw("DELETE FROM [pageTbl]");
-          //  DbCtx.Database.ExecuteSqlRaw("DELETE FROM [scrapeTbl]");
+            // DbCtx.Database.ExecuteSqlRaw("DELETE FROM [linkTbl]");
+            // DbCtx.Database.ExecuteSqlRaw("DELETE FROM [pageTbl]");
+            // DbCtx.Database.ExecuteSqlRaw("DELETE FROM [scrapeTbl]");
             DbCtx.Database.ExecuteSqlRaw("DELETE FROM [hostTbl]");
             Console.WriteLine("Database cleared.");
         }
+
+        #endregion
     }
 }
