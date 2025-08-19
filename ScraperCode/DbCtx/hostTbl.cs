@@ -22,4 +22,8 @@ public partial class hostTbl
     public bool reportDone { get; set; }
 
     public string category { get; set; }
+
+    public int redirectStatusCode { get; set; }
+
+    public string redirectedToUrl { get; set; }
 }

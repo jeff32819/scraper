@@ -1,11 +1,6 @@
 ﻿using AngleSharp;
-
 using HtmlAgilityPack;
-
 using Jeff32819DLL.MiscCore20;
-
-using Microsoft.EntityFrameworkCore;
-
 using ScraperCode.Models;
 
 namespace ScraperCode;

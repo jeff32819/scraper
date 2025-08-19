@@ -52,6 +52,27 @@ public class DbService
         return HostAdd(uri, -1, "");
     }
 
+
+    public void HostRedirectionUpdate(string oldHost, string newHost)
+    {
+        var oldUri = new Uri(oldHost);
+        var newUri = new Uri(newHost);
+
+        var rs = DbCtx.hostTbl.SingleOrDefault(x => x.host == oldUri.Host);
+        if(rs == null)
+        {
+            throw new Exception($"Host not found in database: {oldHost}"); // should not happen
+        }
+
+        if (!string.IsNullOrEmpty(rs.redirectedToUrl))
+        {
+            return;
+        }
+        rs.redirectedToUrl = newUri.Host;
+        DbCtx.SaveChanges();
+    }
+
+
     public hostTbl HostAddSeed(Uri uri, int maxPageToScrape, string category)
     {
         return HostAdd(uri, maxPageToScrape, category);

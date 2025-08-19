@@ -31,6 +31,9 @@ var hostService = Host.CreateDefaultBuilder(args)
     })
     .Build();
 var dbSvc = hostService.Services.GetRequiredService<DbService>();
+
+
+
 var filePaths = new LogFilePath(@"t:\ScraperApp2");
 var logger = new NLogSetup(true);
 logger.SetFileTarget(filePaths.Log);

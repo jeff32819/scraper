@@ -145,6 +145,7 @@ public partial class WebScraperContext : DbContext
                 .IsRequired()
                 .HasMaxLength(500)
                 .IsUnicode(false);
+            entity.Property(e => e.redirectedToUrl).IsUnicode(false);
             entity.Property(e => e.runNotes).IsUnicode(false);
         });
 
