@@ -45,7 +45,7 @@ public static class Scraper02
             foreach (var link in linkParser.LinkArr)
             {
                 Console.WriteLine($"Adding link: {JsonConvert.SerializeObject(link, Formatting.Indented)}");
-                await dbSvc.DbCtx.Procedures.linkAddSpAsync(page.id, link.indexOnPage, link.host, link.cleanLink, link.fullLink, link.rawLink, link.innerHtml, link.outerHtml, link.errorMessage);
+                await dbSvc.LinkAdd(page, link);
             }
 
             foreach (var kvp in linkParser.PageDic)
@@ -57,7 +57,7 @@ public static class Scraper02
                 }
 
                 Console.WriteLine($"Adding page: {kvp.Value.cleanLink}");
-                await dbSvc.DbCtx.Procedures.pageAddSpAsync(kvp.Value.host, kvp.Value.fullLink, kvp.Value.cleanLink);
+                await dbSvc.PageAdd(kvp.Value.host, kvp.Value.fullLink, kvp.Value.cleanLink);
             }
 
             await dbSvc.UpdateLinkCount(page, linkParser.LinkArr.Count);

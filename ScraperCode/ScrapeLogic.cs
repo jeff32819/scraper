@@ -24,7 +24,7 @@ public class ScrapeLogic
     /// <param name="link"></param>
     public void AddPage(string link)
     {
-        UriSections = new UriSections(link);
+        UriSections = new UriSections(link, false);
         var host = Db.HostGet(UriSections.Uri); // if not exists, it will throw an exception
         var scrape = Db.ScrapeAdd(GetScrapeObj());
         Db.PageAdd(GetPageObj(host.id, scrape.id));
@@ -36,7 +36,7 @@ public class ScrapeLogic
     /// <param name="scrape"></param>
     public void AddPage(scapeLinksThatShouldBeInPages scrape)
     {
-        UriSections = new UriSections(scrape.absoluteUri);
+        UriSections = new UriSections(scrape.absoluteUri, false);
         Db.PageAdd(GetPageObj(scrape.hostId, scrape.scrapeId));
     }
     /// <summary>
@@ -49,7 +49,7 @@ public class ScrapeLogic
         {
             throw new Exception("page id should not be 0, is required");
         }
-        UriSections = new UriSections(link.absoluteUri);
+        UriSections = new UriSections(link.absoluteUri, false);
         link.absoluteUri = CalcAbsoluteUri();
         Db.HostAddIfNotExists(UriSections.Uri); // if not exists
         
@@ -119,7 +119,7 @@ public class ScrapeLogic
     /// <param name="category"></param>
     public void AddHostSeed(string link, int maxPagesToScrape, string category)
     {
-        UriSections = new UriSections(link);
+        UriSections = new UriSections(link, false);
         var host = Db.HostAddSeed(UriSections.Uri, maxPagesToScrape, category);
         var scrape = Db.ScrapeAdd(GetScrapeObj());
         Db.PageAdd(GetPageObj(host.id, scrape.id));

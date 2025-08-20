@@ -65,20 +65,15 @@ public static class RunCode
             link = $"https://{link}";
         }
 
-        var uriSection = new UriSections(link);
+        var uriSection = new UriSections(link, false);
         return uriSection.SchemeHost;
     }
 
-    public static void AddManual(DbService dbSvc, string url)
-    {
-        var logic = new ScrapeLogic(dbSvc);
-        logic.AddHostSeed(url, 99, "test");
-    }
 
     public static async Task FromFile(DbService dbSvc, LogFilePath filePaths, NLogger log)
     {
         const int maxPageToScrape = 100;
-        StaticData.Update(dbSvc);
+
 
         log.Info("RunCode.FromFile... STARTING");
 

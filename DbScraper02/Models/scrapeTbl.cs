@@ -24,4 +24,6 @@ public partial class scrapeTbl
     public string responseHeaders { get; set; }
 
     public string errorMessage { get; set; }
+
+    public DateTime addedDateTime { get; set; }
 }

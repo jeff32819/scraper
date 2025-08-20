@@ -16,6 +16,10 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[fileTypeAllowedToScrapeTbl]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[hostTbl]",
          "ObjectType": 0
       },
@@ -40,6 +44,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[hostPageLinkErrorsQry]",
+         "ObjectType": 3
+      },
+      {
          "Name": "[dbo].[hostQry]",
          "ObjectType": 3
       },
@@ -50,6 +58,10 @@
       {
          "Name": "[dbo].[tmpHostTransferQry]",
          "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[fileTypeAllowedToScrapeInsertSp]",
+         "ObjectType": 1
       },
       {
          "Name": "[dbo].[linkAddSp]",
@@ -69,6 +81,10 @@
       },
       {
          "Name": "[dbo].[pageUpdateLinkCountOverLimit]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[scrapeAddSp]",
          "ObjectType": 1
       }
    ],

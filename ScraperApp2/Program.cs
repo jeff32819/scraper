@@ -1,16 +1,12 @@
 ﻿using System.Reflection;
-
 using CodeBase;
-
 using ScraperApp2;
-
 using ScraperCode;
-
-
 
 var appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
 var filePaths = new LogFilePath(@"t:\ScraperApp2");
-var setup = ScraperCode.HostBuilderFactory.Create();
+var setup = HostBuilderFactory.Create();
+await setup.DbSvc02.StaticDataUpdate();
 
 Console.Title = $"ScraperApp2 (v{appVersion})";
 
@@ -19,7 +15,8 @@ if (RunCode.IsDevServer(devServer))
 {
     Console.WriteLine($"DEV SERVER: {devServer}");
     //  add later after using db2 // setup.DbSvc02.DbReset();
-    RunCode.AddManual(setup.DbSvc01, "https://www.brittanymooreproduction.com");
+    await setup.DbSvc02.SeedAdd("https://brittanymooreproduction.com");
+
 }
 else // NOT DEV SERVER
 {
@@ -35,12 +32,7 @@ else // NOT DEV SERVER
 //}
 
 
-//var scraper = new Scraper(setup.DbSvc01, setup.Logger);
-//await scraper.ProcessScrapeHtml();
-
-
-
-await ScraperCode.Scraper02.Process(setup.DbSvc02, setup.Logger);
+await Scraper02.Process(setup.DbSvc02, setup.Logger);
 
 
 //var reportRs = setup.DbSvc01.GetReportRs();

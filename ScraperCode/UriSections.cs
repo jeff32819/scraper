@@ -9,11 +9,15 @@ public class UriSections
         IsValid = true;
     }
 
-    public UriSections(string linkUrl)
+    public UriSections(string linkUrl, bool tryAddingHttps)
     {
         try
         {
             Uri = new Uri(linkUrl, UriKind.RelativeOrAbsolute);
+            if (!Uri.IsAbsoluteUri)
+            {
+                Uri = new Uri("https://" + linkUrl);
+            }
             IsValid = Uri.IsAbsoluteUri;
         }
         catch (UriFormatException ex)
@@ -80,7 +84,7 @@ public class UriSections
     public bool IsValid { get; }
     public Uri Uri { get; }
     public string Scheme => Uri.Scheme;
-    public string SchemeHost => Uri.GetLeftPart(UriPartial.Authority);
+    public string SchemeHost => Uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
     public string SchemeHostPath => Uri.GetLeftPart(UriPartial.Path);
     public string SchemeHostPathQuery => Uri.GetLeftPart(UriPartial.Query);
     public string SchemeHostPathQueryFragment => Uri.AbsoluteUri;

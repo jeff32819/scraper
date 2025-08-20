@@ -13,6 +13,10 @@ public partial class Scraper02Context : DbContext
     {
     }
 
+    public virtual DbSet<fileTypeAllowedToScrapeTbl> fileTypeAllowedToScrapeTbl { get; set; }
+
+    public virtual DbSet<hostPageLinkErrorsQry> hostPageLinkErrorsQry { get; set; }
+
     public virtual DbSet<hostQry> hostQry { get; set; }
 
     public virtual DbSet<hostTbl> hostTbl { get; set; }
@@ -33,6 +37,45 @@ public partial class Scraper02Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<fileTypeAllowedToScrapeTbl>(entity =>
+        {
+            entity.HasKey(e => e.fileExt).HasName("PK_fileTypeAllowedToScrape");
+
+            entity.Property(e => e.fileExt)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<hostPageLinkErrorsQry>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("hostPageLinkErrorsQry");
+
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.innerHtml)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.linkCleanLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.outerHtml)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.pageCleanLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.rawLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.scrapeCleanLink)
+                .IsRequired()
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<hostQry>(entity =>
         {
             entity
@@ -163,6 +206,7 @@ public partial class Scraper02Context : DbContext
         {
             entity.HasKey(e => e.id).HasName("PK_pageTbl");
 
+            entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.cleanLink)
                 .IsRequired()
                 .IsUnicode(false);
