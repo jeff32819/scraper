@@ -378,6 +378,19 @@ public class DbService02
         await ScrapeAdd(host, cleanLink);
     }
 
+    public List<hostPageLinkErrorsQry> ReportPagesForDomain(Uri uri)
+    {
+        return DbCtx.hostPageLinkErrorsQry.Where(x => x.host == uri.Host)
+            .OrderBy(x => x.scrapeCleanLink)
+            .ThenBy(x => x.pageCleanLink)
+            .ToList();
+    }
+    public List<hostTbl> GetReportRs()
+    {
+        return DbCtx.hostTbl.Where(x => x.maxPageToScrape >= 0 && !x.reportDone).ToList();
+    }
+
+
     #region Seed
 
     public async Task SeedAdd(string rawUrl, string category)

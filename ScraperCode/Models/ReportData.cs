@@ -1,11 +1,11 @@
 ﻿using System.Text.RegularExpressions;
-using DbWebScraper.Models;
+
 
 namespace ScraperCode.Models;
 
 public class ReportData
 {
-    public static List<Link> Get(List<hostPageLinkErrorsQry> rs)
+    public static List<Link> Get(List<DbScraper02.Models.hostPageLinkErrorsQry> rs)
     {
         var links = new List<Link>();
         Link? link = null;
@@ -23,7 +23,7 @@ public class ReportData
                 {
                     Id = item.id,
                     RawLink = item.rawLink,
-                    ScrapeUri = item.scrapeUri,
+                    ScrapeUri = item.scrapeCleanLink,
                     StatusCode = item.statusCode,
                     Pages = []
                 };
@@ -31,7 +31,7 @@ public class ReportData
 
             link?.Pages.Add(new Page
             {
-                PageUrl = item.pageUri,
+                PageUrl = item.pageCleanLink,
                 OuterHtml = item.outerHtml
             });
             lastScapeId = item.scrapeId;
@@ -65,7 +65,7 @@ public class ReportData
     public class Link
     {
         public int Id { get; set; }
-        public string StatusCode { get; set; }
+        public int StatusCode { get; set; }
         public string RawLink { get; set; }
         public string ScrapeUri { get; set; }
         public List<Page> Pages { get; set; } = new();

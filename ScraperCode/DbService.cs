@@ -145,13 +145,7 @@ public class DbService
         DbCtx.SaveChanges();
     }
 
-    public List<hostPageLinkErrorsQry> ReportPagesForDomain(Uri uri)
-    {
-        return DbCtx.hostPageLinkErrorsQry.Where(x => x.host == uri.Host)
-            .OrderBy(x => x.scrapeUri)
-            .ThenBy(x => x.pageUri)
-            .ToList();
-    }
+
     //public List<linkTbl> ReportLinkErrorForPage(int pageId)
     //{
     //    return DbCtx.linkTbl.Where(x => x.pageId == pageId).OrderBy(x => x.linkAbsolute && x.).ToList();

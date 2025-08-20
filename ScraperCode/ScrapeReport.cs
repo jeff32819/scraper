@@ -19,7 +19,7 @@ public static class ScrapeReport
             .Replace("'", "&#39;");
     }
 
-    public static async Task Process(DbService dbSvc, string url)
+    public static async Task Process(DbService02 dbSvc, string url)
     {
         var uri = new Uri(url);
 
