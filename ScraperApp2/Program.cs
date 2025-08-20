@@ -27,18 +27,20 @@ else // NOT DEV SERVER
 }
 
 
-var rs = setup.DbSvc02.DbCtx.tmpHostTransferQry.ToList();
-foreach (var host in rs)
-{
-    Console.WriteLine($"Adding host: {host.host}");
-    await setup.DbSvc02.HostAdd(new Uri($"https://{host.host}"), host.maxPageToScrape, host.category);
-}
+//var rs = setup.DbSvc02.DbCtx.tmpHostTransferQry.ToList();
+//foreach (var host in rs)
+//{
+//    Console.WriteLine($"Adding host: {host.host}");
+//    await setup.DbSvc02.HostAdd(new Uri($"https://{host.host}"), host.maxPageToScrape, host.category);
+//}
 
 
 //var scraper = new Scraper(setup.DbSvc01, setup.Logger);
 //await scraper.ProcessScrapeHtml();
 
 
+
+await ScraperCode.Scraper02.Process(setup.DbSvc02, setup.Logger);
 
 
 //var reportRs = setup.DbSvc01.GetReportRs();

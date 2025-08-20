@@ -16,7 +16,10 @@ public static class Code
         Debug.Print("");
         return string.Equals(childDomain.Domain, parentDomain.Domain, StringComparison.CurrentCultureIgnoreCase);
     }
-
+    public static string CalcAbsoluteUri(UriSections uriSections)
+    {
+        return uriSections.SchemeHostPathQuery.TrimEnd('/');
+    }
 
     public static async Task<LinkParsed> GetLinksWithHtmlAsync(int pageId, string absoluteUri, string html)
     {

@@ -20,8 +20,28 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[linkTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[linkUniqueTbl]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[logTbl]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[scrapeRuleTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[hostQry]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[linkUniqueScrapeQueueQry]",
+         "ObjectType": 3
       },
       {
          "Name": "[dbo].[tmpHostTransferQry]",

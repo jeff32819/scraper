@@ -28,7 +28,7 @@ public static class HttpClientHelper
             Url = responseContainer.HttpClientResponse.Response?.RequestMessage?.RequestUri?.OriginalString ?? throw new Exception("RequestUri should not be null"),
             StatusCode = responseContainer.HttpClientResponse.StatusCodeToString,
             ContentType = responseContainer.HttpClientResponse.ContentType ?? "UNKNOWN",
-            Html = await responseContainer.HttpClientResponse.Content,
+            Html = responseContainer.HttpClientResponse.Content,
             ResponseHeaders = responseContainer.HttpClientResponse.ResponseHeaders,
             ContentHeaders = responseContainer.HttpClientResponse.ContentHeaders,
             WasRedirected = wasRedirected,

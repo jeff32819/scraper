@@ -33,7 +33,7 @@ public class HttpClientResponse
     public bool IsWebPage =>
         !string.IsNullOrEmpty(ContentType) && (ContentType.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) ||
                                                ContentType.StartsWith("application/xhtml+xml", StringComparison.OrdinalIgnoreCase));
-    public Task<string> Content => Response.Content.ReadAsStringAsync();
+    public string Content => Response.Content.ReadAsStringAsync().Result;
 
     public string? ContentType => Response.Content.Headers.ContentType?.MediaType;
     public int StatusCode => (int)Response.StatusCode;

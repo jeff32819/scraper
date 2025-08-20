@@ -6,12 +6,41 @@ public class UriSections
     public UriSections(Uri uri)
     {
         Uri = uri;
+        IsValid = true;
     }
-    public UriSections(string link)
+
+    public UriSections(string linkUrl)
     {
-        Uri = new Uri(link);
+        try
+        {
+            Uri = new Uri(linkUrl, UriKind.RelativeOrAbsolute);
+            IsValid = Uri.IsAbsoluteUri;
+        }
+        catch (UriFormatException ex)
+        {
+            Uri = null!;
+            IsValid = false;
+        }
     }
-    public Uri Uri { get; set; }
+    public UriSections(string pageUrl, string linkUrl)
+    {
+        try
+        {
+            Uri = new Uri(linkUrl, UriKind.RelativeOrAbsolute);
+            if (!Uri.IsAbsoluteUri)
+            {
+                Uri = new Uri(new Uri(pageUrl), linkUrl);
+            }
+            IsValid = true;
+        }
+        catch (UriFormatException ex)
+        {
+            Uri = null!;
+            IsValid = false;
+        }
+    }
+    public bool IsValid { get; }
+    public Uri Uri { get; }
     public string Scheme => Uri.Scheme;
     public string SchemeHost => Uri.GetLeftPart(UriPartial.Authority);
     public string SchemeHostPath => Uri.GetLeftPart(UriPartial.Path);

@@ -1,9 +1,18 @@
 ﻿using System;
 
 using DbScraper02.Models;
+
+using Jeff32819DLL.MiscCore20;
+
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+
 using ScraperCode.Models;
+
+using static Jeff32819DLL.MiscCore20.ConsoleAppArgumentParser;
+using static ScraperCode.DbService02;
+using static ScraperCode.Models.ReportData;
 
 namespace ScraperCode
 {
@@ -158,5 +167,162 @@ namespace ScraperCode
         }
 
         #endregion
+
+        public TimeoutRetry TimeoutRetry => new(3, 10000, "t:\\timeout-log.txt");
+        public ScrapeQueueModel ScrapeQueue()
+        {
+            TimeoutRetry.Reset();
+            while (TimeoutRetry.Running)
+            {
+                try
+                {
+                    var count = DbCtx.linkUniqueScrapeQueueQry.Count();
+                    if (count == 0)
+                    {
+                        return new ScrapeQueueModel
+                        {
+                            QueueCount = 0,
+                            QueueItem = new linkUniqueScrapeQueueQry()
+                        };
+                    }
+
+                    var skip = new Random().Next(count);
+                    var rs = DbCtx.linkUniqueScrapeQueueQry.Skip(skip).Take(1).First();
+                    return new ScrapeQueueModel
+                    {
+                        QueueCount = count,
+                        QueueItem = rs
+                    };
+                }
+                catch (Exception ex) // when (ex is TimeoutException || ex.InnerException is TimeoutException)
+                {
+                    Console.WriteLine("----------------------------------------------------");
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("----------------------------------------------------");
+                    if (TimeoutRetry.RetriesMaxedOut)
+                    {
+                        throw;
+                    }
+
+                    TimeoutRetry.Delay();
+                }
+            }
+
+            throw new Exception("timeout");
+        }
+
+        public class ScrapeQueueModel
+        {
+            public linkUniqueScrapeQueueQry QueueItem { get; set; } = null!;
+            public int QueueCount { get; set; }
+        }
+        /// <summary>
+        /// Maybe need to do more after it is redirected.
+        /// </summary>
+        /// <param name="queueItemQueueItem"></param>
+        /// <param name="tmp"></param>
+        public async Task<linkUniqueTbl> ScrapeUpdateRedirected(linkUniqueScrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+        {
+            var rs = DbCtx.linkUniqueTbl.Single(x => x.id == queueItemQueueItem.id);
+            rs.statusCode = 0;
+            rs.errorMessage = $"Redirected: {tmp.HttpClientResponse.RedirectedLocation}";
+            await DbCtx.SaveChangesAsync();
+            return rs;
+        }
+
+        public async Task<linkUniqueTbl> ScrapeUpdateHtml(linkUniqueScrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+        {
+            var rs = DbCtx.linkUniqueTbl.Single(x => x.id == queueItemQueueItem.id);
+            rs.statusCode = tmp.HttpClientResponse.StatusCode;
+            rs.html = tmp.HttpClientResponse.Content ?? "";
+            rs.contentType = tmp.HttpClientResponse.ContentType ?? "UNKNOWN";
+            rs.responseHeaders = tmp.HttpClientResponse.ResponseHeadersToJson;
+            rs.contentHeaders = tmp.HttpClientResponse.ContentHeadersToJson;
+            rs.errorMessage = "";
+            await DbCtx.SaveChangesAsync();
+            return rs;
+        }
+
+
+        public async Task UpdateLinkCountOverLimit(linkUniqueTbl linkUniqueTbl, int linksCount, int linkCountOverLimit)
+        {
+            linkUniqueTbl.linkCount = linksCount;
+            linkUniqueTbl.linkCountOverLimit = linkCountOverLimit;
+            await DbCtx.SaveChangesAsync();
+        }
+
+        public async Task UpdateLinkCount(linkUniqueTbl linkUniqueTbl, int linksCount)
+        {
+            linkUniqueTbl.linkCount = linksCount;
+            await DbCtx.SaveChangesAsync();
+        }
+        public void LinksDeleteForPage(int linkUniqueId)
+        {
+            TimeoutRetry.Reset();
+            while (TimeoutRetry.Running)
+            {
+                try
+                {
+                    var timeTaken = new TimeTaken();
+                    using var db = new SqlConnection(DbConnString);
+                    const string sql = "DELETE FROM linkTbl WHERE uniqueId = @uniqueId";
+                    var cmd = new SqlCommand(sql, db);
+                    cmd.Connection.Open();
+                    var param = cmd.CreateParameter();
+                    param.ParameterName = "@uniqueId";
+                    param.Value = linkUniqueId;
+                    cmd.Parameters.Add(param);
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    db.Close();
+                    Console.WriteLine($"LinksDeleteForPage: links for {linkUniqueId} deleted in {timeTaken.Seconds()} seconds");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("----------------------------------------------------");
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("----------------------------------------------------");
+                    if (TimeoutRetry.RetriesMaxedOut)
+                    {
+                        throw;
+                    }
+
+                    TimeoutRetry.Delay();
+                }
+            }
+        }
+
+        public async Task LinksAddToDb(linkTbl link)
+        {
+            DbCtx.linkTbl.Add(link);
+            await DbCtx.SaveChangesAsync();
+
+        }
+
+        public async Task LinkUniqueAddToDb(string absoluteUri)
+        {
+
+            var newUri = new ScraperCode.UriSections(absoluteUri);
+            if (!newUri.IsValid) // will only add real links... e.g. hopefully not email, etc.
+            {
+                return;
+            }
+
+            var cleanedUri = ScraperCode.Code.CalcAbsoluteUri(newUri);
+            var rs = DbCtx.linkUniqueTbl.SingleOrDefault(x => x.absoluteUri == cleanedUri);
+            if (rs != null)
+            {
+                await DbCtx.SaveChangesAsync();
+                return;
+            }
+
+            DbCtx.linkUniqueTbl.Add(new linkUniqueTbl
+            {
+                host = newUri.Uri.Host,
+                absoluteUri = cleanedUri,
+            });
+            await DbCtx.SaveChangesAsync();
+        }
     }
 }
