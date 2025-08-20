@@ -54,15 +54,15 @@ Console.WriteLine("START");
 await Scraper02.Process(setup.DbSvc02, setup.Logger);
 Console.WriteLine("START DONE");
 
-var reportRs = setup.DbSvc02.GetReportRs();
-foreach (var item in reportRs)
-{
-    await ScrapeReport.Process(setup.DbSvc02, $"https://{item.host}");
-    item.reportDone = true;
-    setup.DbSvc02.DbCtx.hostTbl.Update(item);
-    setup.DbSvc02.DbCtx.SaveChanges();
-    Console.WriteLine($"Report done for {item.host}");
-}
+//var reportRs = setup.DbSvc02.GetReportRs();
+//foreach (var item in reportRs)
+//{
+//    await ScrapeReport.Process(setup.DbSvc02, $"https://{item.host}");
+//    item.reportDone = true;
+//    setup.DbSvc02.DbCtx.hostTbl.Update(item);
+//    setup.DbSvc02.DbCtx.SaveChanges();
+//    Console.WriteLine($"Report done for {item.host}");
+//}
 
 Console.WriteLine("");
 Console.WriteLine("DONE!!!       Press any key to exit");
