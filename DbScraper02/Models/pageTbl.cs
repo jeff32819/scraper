@@ -5,13 +5,9 @@ using System.Collections.Generic;
 
 namespace DbScraper02.Models;
 
-public partial class linkTbl
+public partial class pageTbl
 {
     public int id { get; set; }
-
-    public int pageId { get; set; }
-
-    public int indexOnPage { get; set; }
 
     public string host { get; set; }
 
@@ -19,13 +15,9 @@ public partial class linkTbl
 
     public string fullLink { get; set; }
 
-    public string rawLink { get; set; }
-
-    public string innerHtml { get; set; }
-
-    public string outerHtml { get; set; }
-
     public DateTime addedDateTime { get; set; }
 
-    public string errorMessage { get; set; }
+    public int linkCount { get; set; }
+
+    public int linkCountOverLimit { get; set; }
 }

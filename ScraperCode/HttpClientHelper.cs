@@ -1,4 +1,8 @@
-﻿using ScraperCode.Models;
+﻿using System;
+
+using Microsoft.EntityFrameworkCore;
+
+using ScraperCode.Models;
 
 using static ScraperCode.Models.HttpClientResponse;
 
@@ -44,7 +48,8 @@ public static class HttpClientHelper
         var responseContainer = await GetFromHttpClient(url);
         if (responseContainer.IsRedirected)
         {
-            responseContainer = await GetFromHttpClient(responseContainer.HttpClientResponse.RedirectedLocation, new RedirectedModel
+            var uriSections = new UriSections(url, responseContainer.HttpClientResponse.RedirectedLocation);
+            responseContainer = await GetFromHttpClient(uriSections.Uri, new RedirectedModel
             {
                 FromUrl = responseContainer.RequestUri,
                 StatusCode = responseContainer.HttpClientResponse.StatusCode
@@ -57,11 +62,17 @@ public static class HttpClientHelper
 
     private static async Task<HttpClientResponseContainer> GetFromHttpClient(Uri url, RedirectedModel? redirectedFrom = null)
     {
-
+        Console.WriteLine(url.IsAbsoluteUri + " " + url.OriginalString);
         var rv = new HttpClientResponseContainer
         {
-            RequestUri = url
+            RequestUri = url,
+            StatusCode = 0
         };
+        if (!url.IsAbsoluteUri)
+        {
+            rv.ErrorMessage = $"NotAbsoluteUri: {url.ToString()}";
+            return rv;
+        }
         try
         {
             var handler = new HttpClientHandler
@@ -73,8 +84,8 @@ public static class HttpClientHelper
             client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
             var tmp = await client.GetAsync(url);
             rv.HttpClientResponse = new HttpClientResponse(tmp, redirectedFrom);
+            rv.StatusCode = rv.HttpClientResponse.StatusCode;
             rv.IsRedirected = rv.HttpClientResponse.IsRedirected;
-            rv.Success = true;
         }
         catch (Exception ex)
         {

@@ -1,102 +1,98 @@
-﻿using AngleSharp;
-using AngleSharp.Dom;
-
-using CodeBase;
-
+﻿using CodeBase;
 using DbScraper02.Models;
+using Newtonsoft.Json;
 
 // ReSharper disable InvertIf
 
-namespace ScraperCode
+namespace ScraperCode;
+
+public static class Scraper02
 {
-    public static class Scraper02
+    private const int PageMaxLinkCount = 200;
+
+
+    private static async Task<LinkParser> GetLinkParser(scrapeQueueQry scrapeQueueQry, string scrapedLink, string html, int pageId)
     {
-        public static async Task Process(DbService02 dbSvc, NLogger setupLogger)
+        var linkParser = new LinkParser(scrapeQueueQry, scrapedLink);
+        await linkParser.Init(html, pageId);
+        return linkParser;
+    }
+
+    public static async Task Process(DbService02 dbSvc, NLogger setupLogger)
+    {
+        while (dbSvc.ScrapeQueue() is { QueueCount: > 0 } queueItem)
         {
-            while (dbSvc.ScrapeQueue() is { QueueCount: > 0 } queueItem)
+            var scrape = await ScrapeWebAndUpdate(dbSvc, queueItem);
+            var page = dbSvc.PageLookup(scrape);
+            if (page == null || scrape.html == null) // html is null ususally if redirected.
             {
+                continue;
+            }
 
-                var linkUniqueTbl = await GetLinkUniqueTbl(dbSvc, queueItem);
+            var linkParser = await GetLinkParser(queueItem.QueueItem, scrape.cleanLink, scrape.html, page.id);
+            await dbSvc.LinksDeleteForPage(page.id);
 
-                if (linkUniqueTbl.statusCode.IsRedirectStatusCode())
-                {
-                    continue; // already did this -- should not happen
-                }
-                var links = await ParseLinks(linkUniqueTbl.id, linkUniqueTbl.absoluteUri, linkUniqueTbl.html);
-                const int maxLinks = 200;
-                dbSvc.LinksDeleteForPage(linkUniqueTbl.id);
-                if (links.Count > maxLinks)
-                {
-                    await dbSvc.UpdateLinkCountOverLimit(linkUniqueTbl, links.Count, maxLinks);
+            switch (linkParser.LinkArr.Count)
+            {
+                case 0:
+                    await dbSvc.UpdateLinkCount(page, 0);
+                    continue; // no links found, skip this page
+                case > PageMaxLinkCount:
+                    await dbSvc.UpdateLinkCountOverLimit(page, linkParser.LinkArr.Count, PageMaxLinkCount);
                     continue; // too many links, skip this page
-                }
-                foreach (var item in links)
+            }
+
+            foreach (var link in linkParser.LinkArr)
+            {
+                Console.WriteLine($"Adding link: {JsonConvert.SerializeObject(link, Formatting.Indented)}");
+                await dbSvc.DbCtx.Procedures.linkAddSpAsync(page.id, link.indexOnPage, link.host, link.cleanLink, link.fullLink, link.rawLink, link.innerHtml, link.outerHtml, link.errorMessage);
+            }
+
+            foreach (var kvp in linkParser.PageDic)
+            {
+                var host = await dbSvc.HostManager.Lookup(kvp.Value.host);
+                if (host.maxPageToScrape < 0)
                 {
-                    await dbSvc.LinkUniqueAddToDb(item.absoluteUri);
-                    await dbSvc.LinksAddToDb(item);
+                    continue;
                 }
-                await dbSvc.UpdateLinkCount(linkUniqueTbl, links.Count);
-            }
-        }
 
-        public static async Task<linkUniqueTbl> GetLinkUniqueTbl(DbService02 dbSvc, DbService02.ScrapeQueueModel queueItem)
+                Console.WriteLine($"Adding page: {kvp.Value.cleanLink}");
+                await dbSvc.DbCtx.Procedures.pageAddSpAsync(kvp.Value.host, kvp.Value.fullLink, kvp.Value.cleanLink);
+            }
+
+            await dbSvc.UpdateLinkCount(page, linkParser.LinkArr.Count);
+        }
+    }
+
+    public static async Task<scrapeTbl> ScrapeWebAndUpdate(DbService02 dbSvc, DbService02.ScrapeQueueModel queueItem)
+    {
+        if (queueItem.QueueItem.statusCode != -1) // already done
         {
-            if (queueItem.QueueItem.statusCode != -1)
-            {
-                return dbSvc.DbCtx.linkUniqueTbl.Single(x => x.id == queueItem.QueueItem.id);
-            }
-            var uri = new Uri(queueItem.QueueItem.absoluteUri);
-            var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
-            if (tmp.IsRedirected)
-            {
-                return await dbSvc.ScrapeUpdateRedirected(queueItem.QueueItem, tmp);
-            }
-            return await dbSvc.ScrapeUpdateHtml(queueItem.QueueItem, tmp);
+            return dbSvc.DbCtx.scrapeTbl.Single(x => x.id == queueItem.QueueItem.scrapeId);
         }
-        public static async Task<List<linkTbl>> ParseLinks(int uniqueId, string absoluteUri, string html)
+
+        Console.WriteLine(queueItem.QueueItem.cleanLink);
+
+        var uri = new Uri(queueItem.QueueItem.cleanLink);
+
+        if (!uri.IsAbsoluteUri)
         {
-            var context = BrowsingContext.New(Configuration.Default);
-            var document = await context.OpenAsync(req => req.Content(html));
-            var indexOnPage = 0;
-            return document.QuerySelectorAll("a").Select(a => ParseEachLink(uniqueId,indexOnPage++, a, absoluteUri)).ToList();
-
+            var errorMessage = $"NotAbsoluteUri: {uri.ToString()}";
+            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, 0, errorMessage);
         }
 
-        private static linkTbl ParseEachLink(int uniqueId, int indexOnPage, IElement a, string absoluteUri)
+        var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
+        if (tmp.StatusCode == 0)
         {
-            var link = new linkTbl
-            {
-                uniqueId = uniqueId,
-                indexOnPage = indexOnPage,
-                outerHtml = a.OuterHtml,
-                innerHtml = a.InnerHtml,
-                addedDateTime = DateTime.UtcNow,
-                errorMessage = ""
-            };
-
-            try
-            {
-                var href = a.GetAttribute("href");
-                if (href == null)
-                {
-                    link.errorMessage = "href is null for link tag";
-                    return link;
-                }
-                link.rawLink = href;
-                var newUri = new ScraperCode.UriSections(absoluteUri, href);
-                if (!newUri.IsValid)
-                {
-                    return link;
-                }
-                link.absoluteUri = ScraperCode.Code.CalcAbsoluteUri(newUri);
-                return link;
-            }
-            catch (Exception ex)
-            {
-                link.errorMessage = ex.Message;
-                return link;
-            }
+            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.HttpClientResponse.StatusCode, tmp.ErrorMessage);
         }
 
+        if (tmp.IsRedirected)
+        {
+            var errorMessage = $"Redirected: {tmp.HttpClientResponse.RedirectedLocation}";
+            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.HttpClientResponse.StatusCode, errorMessage);
+        }
+
+        return await dbSvc.ScrapeUpdateHtml(queueItem.QueueItem, tmp);
     }
 }

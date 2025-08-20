@@ -19,13 +19,15 @@ public partial class Scraper02Context : DbContext
 
     public virtual DbSet<linkTbl> linkTbl { get; set; }
 
-    public virtual DbSet<linkUniqueScrapeQueueQry> linkUniqueScrapeQueueQry { get; set; }
-
-    public virtual DbSet<linkUniqueTbl> linkUniqueTbl { get; set; }
-
     public virtual DbSet<logTbl> logTbl { get; set; }
 
-    public virtual DbSet<scrapeRuleTbl> scrapeRuleTbl { get; set; }
+    public virtual DbSet<pageRuleTbl> pageRuleTbl { get; set; }
+
+    public virtual DbSet<pageTbl> pageTbl { get; set; }
+
+    public virtual DbSet<scrapeQueueQry> scrapeQueueQry { get; set; }
+
+    public virtual DbSet<scrapeTbl> scrapeTbl { get; set; }
 
     public virtual DbSet<tmpHostTransferQry> tmpHostTransferQry { get; set; }
 
@@ -69,11 +71,18 @@ public partial class Scraper02Context : DbContext
 
         modelBuilder.Entity<linkTbl>(entity =>
         {
-            entity.Property(e => e.absoluteUri)
+            entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.cleanLink)
                 .IsRequired()
                 .IsUnicode(false);
-            entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.errorMessage).IsUnicode(false);
+            entity.Property(e => e.fullLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.innerHtml)
                 .IsRequired()
                 .IsUnicode(false);
@@ -83,56 +92,6 @@ public partial class Scraper02Context : DbContext
             entity.Property(e => e.rawLink)
                 .IsRequired()
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.unique).WithMany(p => p.linkTbl)
-                .HasForeignKey(d => d.uniqueId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_linkTbl_linkUniqueTbl");
-        });
-
-        modelBuilder.Entity<linkUniqueScrapeQueueQry>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("linkUniqueScrapeQueueQry");
-
-            entity.Property(e => e.absoluteUri)
-                .IsRequired()
-                .IsUnicode(false);
-            entity.Property(e => e.contentHeaders).IsUnicode(false);
-            entity.Property(e => e.contentType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.errorMessage).IsUnicode(false);
-            entity.Property(e => e.host)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.html).IsUnicode(false);
-            entity.Property(e => e.responseHeaders).IsUnicode(false);
-        });
-
-        modelBuilder.Entity<linkUniqueTbl>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("PK_pageTbl");
-
-            entity.Property(e => e.absoluteUri)
-                .IsRequired()
-                .IsUnicode(false);
-            entity.Property(e => e.contentHeaders).IsUnicode(false);
-            entity.Property(e => e.contentType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.errorMessage).IsUnicode(false);
-            entity.Property(e => e.host)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.html).IsUnicode(false);
-            entity.Property(e => e.linkCount).HasDefaultValue(-1);
-            entity.Property(e => e.linkCountOverLimit).HasDefaultValue(-1);
-            entity.Property(e => e.responseHeaders).IsUnicode(false);
-            entity.Property(e => e.statusCode).HasDefaultValue(-1);
         });
 
         modelBuilder.Entity<logTbl>(entity =>
@@ -143,18 +102,82 @@ public partial class Scraper02Context : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<scrapeRuleTbl>(entity =>
+        modelBuilder.Entity<pageRuleTbl>(entity =>
         {
-            entity.Property(e => e.absoluteUri)
-                .IsRequired()
-                .IsUnicode(false);
+            entity.HasKey(e => e.id).HasName("PK_scrapeRuleTbl");
+
             entity.Property(e => e.addedDateTime)
                 .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.cleanLink)
+                .IsRequired()
                 .IsUnicode(false);
             entity.Property(e => e.host)
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<pageTbl>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PK_pageTbl_1");
+
+            entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.cleanLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.fullLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.linkCount).HasDefaultValue(-1);
+            entity.Property(e => e.linkCountOverLimit).HasDefaultValue(-1);
+        });
+
+        modelBuilder.Entity<scrapeQueueQry>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("scrapeQueueQry");
+
+            entity.Property(e => e.cleanLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.contentHeaders).IsUnicode(false);
+            entity.Property(e => e.contentType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.errorMessage).IsUnicode(false);
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.html).IsUnicode(false);
+            entity.Property(e => e.responseHeaders).IsUnicode(false);
+        });
+
+        modelBuilder.Entity<scrapeTbl>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PK_pageTbl");
+
+            entity.Property(e => e.cleanLink)
+                .IsRequired()
+                .IsUnicode(false);
+            entity.Property(e => e.contentHeaders).IsUnicode(false);
+            entity.Property(e => e.contentType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.errorMessage).IsUnicode(false);
+            entity.Property(e => e.host)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.html).IsUnicode(false);
+            entity.Property(e => e.responseHeaders).IsUnicode(false);
+            entity.Property(e => e.statusCode).HasDefaultValue(-1);
         });
 
         modelBuilder.Entity<tmpHostTransferQry>(entity =>

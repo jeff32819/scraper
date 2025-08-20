@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace DbScraper02.Models;
 
-public partial class scrapeRuleTbl
+public partial class pageRuleTbl
 {
     public int id { get; set; }
 
     public string host { get; set; }
 
-    public string absoluteUri { get; set; }
+    public string cleanLink { get; set; }
 
     public string addedDateTime { get; set; }
 }

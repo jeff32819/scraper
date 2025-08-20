@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Dapper;
 
 using DbScraper02.Models;
 
@@ -6,13 +6,8 @@ using Jeff32819DLL.MiscCore20;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 using ScraperCode.Models;
-
-using static Jeff32819DLL.MiscCore20.ConsoleAppArgumentParser;
-using static ScraperCode.DbService02;
-using static ScraperCode.Models.ReportData;
 
 namespace ScraperCode
 {
@@ -22,8 +17,10 @@ namespace ScraperCode
         {
             DbCtx = db;
             DbConnString = DbCtx.Database.GetConnectionString() ?? throw new Exception("No database connection string");
+            HostManager = new ScraperCode.HostManager(db);
         }
 
+        public ScraperCode.HostManager HostManager { get; }
         public string DbConnString { get; }
         public Scraper02Context DbCtx { get; }
 
@@ -32,7 +29,7 @@ namespace ScraperCode
         {
             var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
 
-            if (!tmp.Success)
+            if (tmp.StatusCode == 0)
             {
                 return await HostAddError(tmp, maxPageToScrape, category);
             }
@@ -176,18 +173,18 @@ namespace ScraperCode
             {
                 try
                 {
-                    var count = DbCtx.linkUniqueScrapeQueueQry.Count();
+                    var count = DbCtx.scrapeQueueQry.Count();
                     if (count == 0)
                     {
                         return new ScrapeQueueModel
                         {
                             QueueCount = 0,
-                            QueueItem = new linkUniqueScrapeQueueQry()
+                            QueueItem = new scrapeQueueQry()
                         };
                     }
 
                     var skip = new Random().Next(count);
-                    var rs = DbCtx.linkUniqueScrapeQueueQry.Skip(skip).Take(1).First();
+                    var rs = DbCtx.scrapeQueueQry.Skip(skip).Take(1).First();
                     return new ScrapeQueueModel
                     {
                         QueueCount = count,
@@ -213,7 +210,7 @@ namespace ScraperCode
 
         public class ScrapeQueueModel
         {
-            public linkUniqueScrapeQueueQry QueueItem { get; set; } = null!;
+            public scrapeQueueQry QueueItem { get; set; } = null!;
             public int QueueCount { get; set; }
         }
         /// <summary>
@@ -221,18 +218,18 @@ namespace ScraperCode
         /// </summary>
         /// <param name="queueItemQueueItem"></param>
         /// <param name="tmp"></param>
-        public async Task<linkUniqueTbl> ScrapeUpdateRedirected(linkUniqueScrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+        public async Task<scrapeTbl> ScrapeErrorMessage(scrapeQueueQry queueItemQueueItem, int statusCode, string errorMessage)
         {
-            var rs = DbCtx.linkUniqueTbl.Single(x => x.id == queueItemQueueItem.id);
-            rs.statusCode = 0;
-            rs.errorMessage = $"Redirected: {tmp.HttpClientResponse.RedirectedLocation}";
+            var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
+            rs.statusCode = statusCode;
+            rs.errorMessage = errorMessage;
             await DbCtx.SaveChangesAsync();
             return rs;
         }
 
-        public async Task<linkUniqueTbl> ScrapeUpdateHtml(linkUniqueScrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+        public async Task<scrapeTbl> ScrapeUpdateHtml(scrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
         {
-            var rs = DbCtx.linkUniqueTbl.Single(x => x.id == queueItemQueueItem.id);
+            var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
             rs.statusCode = tmp.HttpClientResponse.StatusCode;
             rs.html = tmp.HttpClientResponse.Content ?? "";
             rs.contentType = tmp.HttpClientResponse.ContentType ?? "UNKNOWN";
@@ -244,38 +241,30 @@ namespace ScraperCode
         }
 
 
-        public async Task UpdateLinkCountOverLimit(linkUniqueTbl linkUniqueTbl, int linksCount, int linkCountOverLimit)
+        public async Task UpdateLinkCountOverLimit(pageTbl page, int linkCount, int linkCountOverLimit)
         {
-            linkUniqueTbl.linkCount = linksCount;
-            linkUniqueTbl.linkCountOverLimit = linkCountOverLimit;
-            await DbCtx.SaveChangesAsync();
+            await using var db = new SqlConnection(DbConnString);
+            await db.ExecuteAsync("pageUpdateLinkCountOverLimit", new { pageId = page.id, linkCount, linkCountOverLimit });
         }
 
-        public async Task UpdateLinkCount(linkUniqueTbl linkUniqueTbl, int linksCount)
+        public async Task UpdateLinkCount(pageTbl page, int linkCount)
         {
-            linkUniqueTbl.linkCount = linksCount;
-            await DbCtx.SaveChangesAsync();
+            await using var db = new SqlConnection(DbConnString);
+            await db.ExecuteAsync("pageUpdateLinkCount", new { pageId = page.id, linkCount });
         }
-        public void LinksDeleteForPage(int linkUniqueId)
+        public async Task LinksDeleteForPage(int pageId)
         {
+
             TimeoutRetry.Reset();
             while (TimeoutRetry.Running)
             {
                 try
                 {
                     var timeTaken = new TimeTaken();
-                    using var db = new SqlConnection(DbConnString);
-                    const string sql = "DELETE FROM linkTbl WHERE uniqueId = @uniqueId";
-                    var cmd = new SqlCommand(sql, db);
-                    cmd.Connection.Open();
-                    var param = cmd.CreateParameter();
-                    param.ParameterName = "@uniqueId";
-                    param.Value = linkUniqueId;
-                    cmd.Parameters.Add(param);
-                    cmd.ExecuteNonQuery();
-                    cmd.Dispose();
-                    db.Close();
-                    Console.WriteLine($"LinksDeleteForPage: links for {linkUniqueId} deleted in {timeTaken.Seconds()} seconds");
+                    await using var db = new SqlConnection(DbConnString);
+                    await db.ExecuteAsync("linkDeleteForPageSp", new { pageId });
+                    
+                    Console.WriteLine($"LinksDeleteForPage: links for {pageId} deleted in {timeTaken.Seconds()} seconds");
                     return;
                 }
                 catch (Exception ex)
@@ -292,37 +281,11 @@ namespace ScraperCode
                 }
             }
         }
-
-        public async Task LinksAddToDb(linkTbl link)
+        public pageTbl? PageLookup(scrapeTbl scrape)
         {
-            DbCtx.linkTbl.Add(link);
-            await DbCtx.SaveChangesAsync();
-
-        }
-
-        public async Task LinkUniqueAddToDb(string absoluteUri)
-        {
-
-            var newUri = new ScraperCode.UriSections(absoluteUri);
-            if (!newUri.IsValid) // will only add real links... e.g. hopefully not email, etc.
-            {
-                return;
-            }
-
-            var cleanedUri = ScraperCode.Code.CalcAbsoluteUri(newUri);
-            var rs = DbCtx.linkUniqueTbl.SingleOrDefault(x => x.absoluteUri == cleanedUri);
-            if (rs != null)
-            {
-                await DbCtx.SaveChangesAsync();
-                return;
-            }
-
-            DbCtx.linkUniqueTbl.Add(new linkUniqueTbl
-            {
-                host = newUri.Uri.Host,
-                absoluteUri = cleanedUri,
-            });
-            await DbCtx.SaveChangesAsync();
+            return DbCtx.pageTbl
+                .AsNoTracking()
+                .SingleOrDefault(x => x.cleanLink == scrape.cleanLink);
         }
     }
 }

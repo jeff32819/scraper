@@ -11,7 +11,7 @@ public partial class hostQry
 
     public string host { get; set; }
 
-    public int? hostLinkCount { get; set; }
+    public int? hostPageCount { get; set; }
 
     public int maxPageToScrape { get; set; }
 

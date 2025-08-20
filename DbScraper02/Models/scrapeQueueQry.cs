@@ -5,21 +5,21 @@ using System.Collections.Generic;
 
 namespace DbScraper02.Models;
 
-public partial class linkUniqueScrapeQueueQry
+public partial class scrapeQueueQry
 {
-    public int id { get; set; }
+    public int scrapeId { get; set; }
 
     public string host { get; set; }
 
-    public string absoluteUri { get; set; }
+    public bool shouldAddPage { get; set; }
 
-    public int? hostLinkCount { get; set; }
+    public string cleanLink { get; set; }
+
+    public int? hostPageCount { get; set; }
 
     public int maxPageToScrape { get; set; }
 
     public int statusCode { get; set; }
-
-    public int linkCount { get; set; }
 
     public string html { get; set; }
 

@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace DbScraper02.Models;
 
-public partial class linkUniqueTbl
+public partial class scrapeTbl
 {
     public int id { get; set; }
 
     public string host { get; set; }
 
-    public string absoluteUri { get; set; }
+    public string cleanLink { get; set; }
 
     public int statusCode { get; set; }
 
@@ -24,10 +24,4 @@ public partial class linkUniqueTbl
     public string responseHeaders { get; set; }
 
     public string errorMessage { get; set; }
-
-    public int linkCount { get; set; }
-
-    public int linkCountOverLimit { get; set; }
-
-    public virtual ICollection<linkTbl> linkTbl { get; set; } = new List<linkTbl>();
 }

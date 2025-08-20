@@ -39,6 +39,44 @@ public class UriSections
             IsValid = false;
         }
     }
+
+    public UriSections(Uri pageUrl, string linkUrl)
+    {
+        try
+        {
+            Uri = new Uri(linkUrl, UriKind.RelativeOrAbsolute);
+            if (!Uri.IsAbsoluteUri)
+            {
+                Uri = new Uri(pageUrl, linkUrl);
+            }
+            IsValid = true;
+        }
+        catch (UriFormatException ex)
+        {
+            Uri = null!;
+            IsValid = false;
+        }
+    }
+    public UriSections(Uri pageUrl, Uri linkUrl)
+    {
+        try
+        {
+            if(linkUrl.IsAbsoluteUri)
+            {
+                Uri = linkUrl;
+                IsValid = true;
+                return;
+            }
+            Uri = new Uri(pageUrl, linkUrl);
+            IsValid = true;
+        }
+        catch (UriFormatException ex)
+        {
+            Uri = null!;
+            IsValid = false;
+        }
+    }
+
     public bool IsValid { get; }
     public Uri Uri { get; }
     public string Scheme => Uri.Scheme;

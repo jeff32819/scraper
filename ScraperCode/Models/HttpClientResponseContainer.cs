@@ -6,6 +6,6 @@
         public string ErrorMessage { get; set; }
         public Uri RequestUri { get; set; }
         public bool IsRedirected { get; set; }
-        public bool Success { get; set; }
+        public int StatusCode { get; set; }
     }
 }

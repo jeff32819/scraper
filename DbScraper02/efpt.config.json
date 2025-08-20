@@ -24,15 +24,19 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[linkUniqueTbl]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[logTbl]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[scrapeRuleTbl]",
+         "Name": "[dbo].[pageRuleTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[pageTbl]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[scrapeTbl]",
          "ObjectType": 0
       },
       {
@@ -40,12 +44,32 @@
          "ObjectType": 3
       },
       {
-         "Name": "[dbo].[linkUniqueScrapeQueueQry]",
+         "Name": "[dbo].[scrapeQueueQry]",
          "ObjectType": 3
       },
       {
          "Name": "[dbo].[tmpHostTransferQry]",
          "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[linkAddSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[linkDeleteForPageSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[pageAddSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[pageUpdateLinkCount]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[pageUpdateLinkCountOverLimit]",
+         "ObjectType": 1
       }
    ],
    "UiHint": null,
