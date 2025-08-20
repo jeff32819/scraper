@@ -1,7 +1,9 @@
-﻿using System.Net.Http.Headers;
-using System.Reflection;
+﻿using System.Reflection;
+
 using CodeBase;
+
 using ScraperApp2;
+
 using ScraperCode;
 
 var appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
