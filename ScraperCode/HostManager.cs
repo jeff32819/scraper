@@ -15,9 +15,9 @@ namespace ScraperCode
         }
         private Scraper02Context Db { get; }
 
-        public async Task<hostTbl> Lookup(string host) => await Add(host);
+        public async Task<hostTbl> Lookup(string host) => await Add(host, "");
 
-        public async Task<hostTbl> Add(string host, int maxPagesToScrape = -1)
+        public async Task<hostTbl> Add(string host, string category, int maxPagesToScrape = -1)
         {
             if (Items.TryGetValue(host, out var item))
             {

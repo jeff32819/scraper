@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using DbWebScraper.Models;
 
-
 namespace ScraperCode.Models;
 
 public class ReportData

@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Text.RegularExpressions;
+using Dapper;
 
 using DbScraper02.Models;
 
@@ -88,12 +89,27 @@ public class DbService02
         var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
         rs.statusCode = statusCode;
         rs.errorMessage = errorMessage;
+        rs.scrapeDateTime = DateTime.UtcNow;
         await DbCtx.SaveChangesAsync();
         return rs;
     }
+    public async Task PageAddAfterScraped(scrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+    {
+        var host = await HostManager.Lookup(queueItemQueueItem.host);
+        if (host.maxPageToScrape < 0)
+        {
+            return;
+        }
 
+        if ((tmp.HttpClientResponse.ContentType ?? "unknown") != "text/html")
+        {
+            return;
+        }
+        await DbCtx.Procedures.pageAddSpAsync(host.host, queueItemQueueItem.cleanLink, queueItemQueueItem.cleanLink);
+    }
     public async Task<scrapeTbl> ScrapeUpdateHtml(scrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
     {
+        await PageAddAfterScraped(queueItemQueueItem, tmp);
         var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
         rs.statusCode = tmp.HttpClientResponse.StatusCode;
         rs.html = tmp.HttpClientResponse.Content ?? "";
@@ -101,6 +117,7 @@ public class DbService02
         rs.responseHeaders = tmp.HttpClientResponse.ResponseHeadersToJson;
         rs.contentHeaders = tmp.HttpClientResponse.ContentHeadersToJson;
         rs.errorMessage = "";
+        rs.scrapeDateTime = DateTime.UtcNow;
         await DbCtx.SaveChangesAsync();
         return rs;
     }
@@ -154,18 +171,7 @@ public class DbService02
             .SingleOrDefault(x => x.cleanLink == scrape.cleanLink);
     }
 
-    public async Task SeedAdd(string rawUrl)
-    {
-        var uri = new UriSections(rawUrl, true);
-        if (!uri.IsValid)
-        {
-            throw new Exception("Invalid URL");
-        }
 
-        await HostManager.Add(uri.Uri.Host, 100);
-        await DbCtx.Procedures.pageAddSpAsync(uri.Uri.Host, uri.SchemeHost, uri.SchemeHost);
-        await ScrapeAdd(uri.Uri.Host, uri.Uri.OriginalString);
-    }
 
 
     public async Task LinkAdd(pageTbl page, linkTbl link)
@@ -188,6 +194,11 @@ public class DbService02
 
     public async Task ScrapeAdd(string host, string cleanLink)
     {
+        if (ShouldSkip(cleanLink))
+        {
+            Console.WriteLine($"Skipping link: {cleanLink}");
+            return;
+        }
         if (!cleanLink.StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
         {
             return;
@@ -349,9 +360,46 @@ public class DbService02
 
     #endregion
 
+    /// <summary>
+    /// Should skip if items like .exe or .pdf are in the link.
+    /// </summary>
+    /// <param name="cleanLink"></param>
+    /// <returns></returns>
+    public bool ShouldSkip(string cleanLink) => Regex.IsMatch(cleanLink, @"\.(exe|pdf)", RegexOptions.IgnoreCase);
+
     public async Task PageAdd(string host, string fullLink, string cleanLink)
     {
+        if(ShouldSkip(cleanLink))
+        {
+            Console.WriteLine($"Skipping link: {cleanLink}");
+            return;
+        }
         await DbCtx.Procedures.pageAddSpAsync(host, fullLink, cleanLink);
         await ScrapeAdd(host, cleanLink);
     }
-}
+
+    #region Seed
+
+    public async Task SeedAdd(string rawUrl, string category)
+    {
+        var uri = new UriSections(rawUrl, true);
+        if (!uri.IsValid)
+        {
+            throw new Exception("Invalid URL");
+        }
+
+        await HostManager.Add(uri.Uri.Host, category, 100);
+        await DbCtx.Procedures.pageAddSpAsync(uri.Uri.Host, uri.SchemeHost, uri.SchemeHost);
+        await ScrapeAdd(uri.Uri.Host, uri.Uri.OriginalString);
+    }
+
+    #endregion
+
+    public async Task PageLinkCountUpdate(pageTbl page, int linkCount)
+    {
+        await using var db = new SqlConnection(DbConnString);
+        await db.ExecuteAsync("update pageTbl set linkCount = @linkCount where id = @pageId", new { pageId = page.id, linkCount });
+    }
+
+
+};

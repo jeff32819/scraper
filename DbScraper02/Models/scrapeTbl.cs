@@ -26,4 +26,6 @@ public partial class scrapeTbl
     public string errorMessage { get; set; }
 
     public DateTime addedDateTime { get; set; }
+
+    public DateTime? scrapeDateTime { get; set; }
 }

@@ -10,7 +10,7 @@ public static class RunCode
     ///     Get list of files to process from a file.
     /// </summary>
     /// <returns></returns>
-    public static async Task<List<string>> FromFileToList(DbService dbSvc, string filePath, NLogger log, bool domainOnly = true)
+    public static async Task<List<string>> FromFileToList(string filePath, NLogger log, bool domainOnly = true)
     {
         var arr = new List<string>();
         if (!File.Exists(filePath))
@@ -70,30 +70,37 @@ public static class RunCode
     }
 
 
-    public static async Task FromFile(DbService dbSvc, LogFilePath filePaths, NLogger log)
+    public static async Task<List<FileRow>> FromFile(LogFilePath filePaths, NLogger log)
     {
+        var arr = new List<FileRow>();
         const int maxPageToScrape = 100;
 
 
         log.Info("RunCode.FromFile... STARTING");
 
-        var scraper = new Scraper(dbSvc, log);
 
         Directory.CreateDirectory(filePaths.LinkFileFolder);
         var files = Directory.GetFiles(filePaths.LinkFileFolder);
         if (files.Length == 0)
         {
             log.Info("No files found in links-to-parse folder");
-            return;
+            return arr;
         }
         foreach (var file in files)
         {
-            var seeds = await FromFileToList(dbSvc, file, log);
+            var seeds = await FromFileToList(file, log);
+            arr.AddRange(seeds.Select(seed => new FileRow { Link = seed, Category = Path.GetFileNameWithoutExtension(file) }));
             log.Info($"Page seeds count = [{seeds.Count}]");
-            scraper.PageSeedsAsync(seeds, file, maxPageToScrape);
         }
 
         log.Info("RunCode.FromFile... DONE");
+        return arr;
+    }
+
+    public class FileRow
+    {
+        public string Category { get; set; }
+        public string Link { get; set; }
     }
 
     public static bool IsDevServer(string devPcName)

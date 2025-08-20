@@ -22,13 +22,25 @@ public static class Scraper02
     {
         while (dbSvc.ScrapeQueue() is { QueueCount: > 0 } queueItem)
         {
+
+            Console.WriteLine($"left = {queueItem.QueueCount}; {queueItem.QueueItem.cleanLink}");
+
             var scrape = await ScrapeWebAndUpdate(dbSvc, queueItem);
             var page = dbSvc.PageLookup(scrape);
-            if (page == null || scrape.html == null) // html is null ususally if redirected.
+            if (page == null && scrape.html == null) // html is null ususally if redirected.
             {
                 continue;
             }
+            if (page != null && scrape.html == null) // html is null ususally if redirected.
+            {
+                await dbSvc.PageLinkCountUpdate(page, 0);
+                continue;
+            }
 
+            if (page == null)
+            {
+                continue; // page not found, skip this scrape
+            }
             var linkParser = await GetLinkParser(queueItem.QueueItem, scrape.cleanLink, scrape.html, page.id);
             await dbSvc.LinksDeleteForPage(page.id);
 
@@ -47,18 +59,18 @@ public static class Scraper02
                 Console.WriteLine($"Adding link: {JsonConvert.SerializeObject(link, Formatting.Indented)}");
                 await dbSvc.LinkAdd(page, link);
             }
+            // add page when scaped IF the content is "text/html"
+            //foreach (var kvp in linkParser.PageDic)
+            //{
+            //    var host = await dbSvc.HostManager.Lookup(kvp.Value.host);
+            //    if (host.maxPageToScrape < 0)
+            //    {
+            //        continue;
+            //    }
 
-            foreach (var kvp in linkParser.PageDic)
-            {
-                var host = await dbSvc.HostManager.Lookup(kvp.Value.host);
-                if (host.maxPageToScrape < 0)
-                {
-                    continue;
-                }
-
-                Console.WriteLine($"Adding page: {kvp.Value.cleanLink}");
-                await dbSvc.PageAdd(kvp.Value.host, kvp.Value.fullLink, kvp.Value.cleanLink);
-            }
+            //    Console.WriteLine($"Adding page: {kvp.Value.cleanLink}");
+            //    await dbSvc.PageAdd(kvp.Value.host, kvp.Value.fullLink, kvp.Value.cleanLink);
+            //}
 
             await dbSvc.UpdateLinkCount(page, linkParser.LinkArr.Count);
         }
@@ -84,7 +96,7 @@ public static class Scraper02
         var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
         if (tmp.StatusCode == 0)
         {
-            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.HttpClientResponse.StatusCode, tmp.ErrorMessage);
+            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.StatusCode, tmp.ErrorMessage);
         }
 
         if (tmp.IsRedirected)
@@ -92,6 +104,7 @@ public static class Scraper02
             var errorMessage = $"Redirected: {tmp.HttpClientResponse.RedirectedLocation}";
             return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.HttpClientResponse.StatusCode, errorMessage);
         }
+
 
         return await dbSvc.ScrapeUpdateHtml(queueItem.QueueItem, tmp);
     }

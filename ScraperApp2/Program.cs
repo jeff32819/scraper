@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Headers;
+using System.Reflection;
 using CodeBase;
 using ScraperApp2;
 using ScraperCode;
@@ -15,13 +16,29 @@ if (RunCode.IsDevServer(devServer))
 {
     Console.WriteLine($"DEV SERVER: {devServer}");
     //  add later after using db2 // setup.DbSvc02.DbReset();
-    await setup.DbSvc02.SeedAdd("https://brittanymooreproduction.com");
+    //await setup.DbSvc02.SeedAdd("https://jeremybuff.com", "import");
 
 }
 else // NOT DEV SERVER
 {
-    await RunCode.FromFile(setup.DbSvc01, filePaths, setup.Logger);
+ 
 }
+var seeds = await RunCode.FromFile(filePaths, setup.Logger);
+var count = 0;
+foreach (var seed in seeds)
+{
+    count++;
+    await setup.DbSvc02.SeedAdd(seed.Link, seed.Category);
+}
+
+if (count > 0)
+{
+    Console.WriteLine($"items added: {count}");
+    Console.WriteLine("delete files now -- press any key to continue");
+    Console.Read();
+}
+
+
 
 
 //var rs = setup.DbSvc02.DbCtx.tmpHostTransferQry.ToList();
@@ -31,9 +48,9 @@ else // NOT DEV SERVER
 //    await setup.DbSvc02.HostAdd(new Uri($"https://{host.host}"), host.maxPageToScrape, host.category);
 //}
 
-
+Console.WriteLine("START");
 await Scraper02.Process(setup.DbSvc02, setup.Logger);
-
+Console.WriteLine("START DONE");
 
 //var reportRs = setup.DbSvc01.GetReportRs();
 //foreach (var item in reportRs)
