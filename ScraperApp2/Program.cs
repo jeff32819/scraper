@@ -40,31 +40,22 @@ if (count > 0)
     Console.Read();
 }
 
-
-
-
-//var rs = setup.DbSvc02.DbCtx.tmpHostTransferQry.ToList();
-//foreach (var host in rs)
-//{
-//    Console.WriteLine($"Adding host: {host.host}");
-//    await setup.DbSvc02.HostAdd(new Uri($"https://{host.host}"), host.maxPageToScrape, host.category);
-//}
-
-Console.WriteLine("START");
+Console.WriteLine("START -- SCRAPING");
 await Scraper02.Process(setup.DbSvc02, setup.Logger);
-Console.WriteLine("START DONE");
-
-//var reportRs = setup.DbSvc02.GetReportRs();
-//foreach (var item in reportRs)
-//{
-//    await ScrapeReport.Process(setup.DbSvc02, $"https://{item.host}");
-//    item.reportDone = true;
-//    setup.DbSvc02.DbCtx.hostTbl.Update(item);
-//    setup.DbSvc02.DbCtx.SaveChanges();
-//    Console.WriteLine($"Report done for {item.host}");
-//}
-
-Console.WriteLine("");
-Console.WriteLine("DONE!!!       Press any key to exit");
-Console.WriteLine("");
-Console.ReadKey();
+Console.WriteLine();
+Console.WriteLine("DONE -- SCRAPING");
+Console.WriteLine();
+Console.WriteLine("Press R to run reports, or any other key to exit");
+if (Console.ReadKey().Key != ConsoleKey.R)
+{
+    return;
+}
+var reportRs = setup.DbSvc02.GetReportRs();
+foreach (var item in reportRs)
+{
+    await ScrapeReport.Process(setup.DbSvc02, $"https://{item.host}");
+    item.reportDone = true;
+    setup.DbSvc02.DbCtx.hostTbl.Update(item);
+    setup.DbSvc02.DbCtx.SaveChanges();
+    Console.WriteLine($"Report done for {item.host}");
+}
