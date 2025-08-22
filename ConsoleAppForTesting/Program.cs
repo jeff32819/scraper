@@ -1,4 +1,6 @@
-﻿var setup = ScraperCode.HostBuilderFactory.Create();
+﻿using ScraperCode;
+
+var setup = ScraperCode.HostBuilderFactory.Create();
 
 
 
@@ -12,9 +14,11 @@
 
 setup.DbSvc02.DbResetWithoutWarning();
 
+await setup.DbSvc02.SeedAdd("https://jeff32819.com", "test");
 
-
-var xxx = await  setup.DbSvc02.HostAdd(new Uri("https://novastardesign.com"), 100, "test");
-
+Console.WriteLine("START -- SCRAPING");
+await Scraper02.Process(setup.DbSvc02, setup.Logger);
+Console.WriteLine();
+Console.WriteLine("DONE -- SCRAPING");
 
 Console.WriteLine();

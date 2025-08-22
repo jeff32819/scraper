@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+
 using Dapper;
 
 using DbScraper02.Models;
@@ -7,11 +8,8 @@ using Jeff32819DLL.MiscCore20;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 using ScraperCode.Models;
-
-using static ScraperCode.Models.ReportData;
 
 namespace ScraperCode;
 
@@ -194,6 +192,7 @@ public class DbService02
 
     public async Task ScrapeAdd(string host, string cleanLink)
     {
+        await HostAdd(host);
         if (ShouldSkip(cleanLink))
         {
             Console.WriteLine($"Skipping link: {cleanLink}");
@@ -214,6 +213,15 @@ public class DbService02
 
     #region Host Methods
 
+    /// <summary>
+    /// Use internally, will set the maxPageToScrape to -1 and category to empty string.
+    /// </summary>
+    /// <param name="host"></param>
+    /// <returns></returns>
+    public async Task<hostTbl> HostAdd(string host)
+    {
+        return await HostAdd(new Uri($"https://{host}"), -1, "");
+    }
     public async Task<hostTbl> HostAdd(Uri uri, int maxPageToScrape, string category)
     {
         var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
@@ -351,11 +359,13 @@ public class DbService02
     public void DbResetWithoutWarning()
     {
         Console.WriteLine("Clearing database...");
-        // DbCtx.Database.ExecuteSqlRaw("DELETE FROM [linkTbl]");
-        // DbCtx.Database.ExecuteSqlRaw("DELETE FROM [pageTbl]");
-        // DbCtx.Database.ExecuteSqlRaw("DELETE FROM [scrapeTbl]");
+        DbCtx.Database.ExecuteSqlRaw("DELETE FROM [linkTbl]");
+        DbCtx.Database.ExecuteSqlRaw("DELETE FROM [pageTbl]");
+        DbCtx.Database.ExecuteSqlRaw("DELETE FROM [scrapeTbl]");
         DbCtx.Database.ExecuteSqlRaw("DELETE FROM [hostTbl]");
         Console.WriteLine("Database cleared.");
+        HostManager.Reset();
+
     }
 
     #endregion

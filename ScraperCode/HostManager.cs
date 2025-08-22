@@ -8,11 +8,18 @@ namespace ScraperCode
         public HostManager(Scraper02Context db)
         {
             Db = db;
-            foreach (var item in db.hostTbl.ToList())
+            Reset();
+        }
+
+        public void Reset()
+        {
+            Items  = new Dictionary<string, hostTbl>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in Db.hostTbl.ToList())
             {
                 Items.Add(item.host, item);
             }
         }
+
         private Scraper02Context Db { get; }
 
         public async Task<hostTbl> Lookup(string host) => await Add(host, "");
@@ -34,6 +41,6 @@ namespace ScraperCode
             Items.Add(host, rs);
             return rs;
         }
-        private Dictionary<string, hostTbl> Items { get; } = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, hostTbl> Items { get; set; }
     }
 }
