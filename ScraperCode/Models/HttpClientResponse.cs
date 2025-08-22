@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using Newtonsoft.Json;
 // ReSharper disable UnusedMember.Global
 
@@ -33,7 +34,8 @@ public class HttpClientResponse
     public bool IsWebPage =>
         !string.IsNullOrEmpty(ContentType) && (ContentType.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) ||
                                                ContentType.StartsWith("application/xhtml+xml", StringComparison.OrdinalIgnoreCase));
-    public string Content => Response.Content.ReadAsStringAsync().Result;
+
+
 
     public string? ContentType => Response.Content.Headers.ContentType?.MediaType;
     public int StatusCode => (int)Response.StatusCode;
@@ -58,4 +60,29 @@ public class HttpClientResponse
         public int StatusCode { get; set; }
     }
 
+    public async Task<string> GetContentAsync()
+    {
+
+        Debug.Print("GetContentAsync()");
+        Debug.Print(RequestUri.ToString());
+
+
+        var contentType = Response.Content.Headers.ContentType;
+        var charset = contentType?.CharSet;
+                // Normalize unsupported charset
+        if (!string.IsNullOrEmpty(charset) && charset.Equals("utf8mb4", StringComparison.OrdinalIgnoreCase))
+        {
+            if (contentType != null && !string.IsNullOrEmpty(contentType.MediaType))
+            {
+                var newContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType.MediaType)
+                {
+                    CharSet = "utf-8"
+                };
+                Response.Content.Headers.ContentType = newContentType;
+            }
+            // else: do nothing, as we cannot set a new content type without a valid media type
+        }
+
+        return await Response.Content.ReadAsStringAsync();
+    }
 }
