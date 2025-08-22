@@ -112,7 +112,7 @@ public class DbService02
         await PageAddAfterScraped(queueItemQueueItem, tmp);
         var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
         rs.statusCode = tmp.HttpClientResponse.StatusCode;
-        rs.html = tmp.HttpClientResponse.Content ?? "";
+        rs.html = await tmp.HttpClientResponse.GetContentAsync();
         rs.contentType = tmp.HttpClientResponse.ContentType ?? "UNKNOWN";
         rs.responseHeaders = tmp.HttpClientResponse.ResponseHeadersToJson;
         rs.contentHeaders = tmp.HttpClientResponse.ContentHeadersToJson;
