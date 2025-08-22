@@ -1,4 +1,5 @@
-﻿using DbScraper02.Models;
+﻿using System.Diagnostics;
+using DbScraper02.Models;
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace ScraperCode
@@ -13,7 +14,7 @@ namespace ScraperCode
 
         public void Reset()
         {
-            Items  = new Dictionary<string, hostTbl>(StringComparer.OrdinalIgnoreCase);
+            Items.Clear();
             foreach (var item in Db.hostTbl.ToList())
             {
                 Items.Add(item.host, item);
@@ -36,11 +37,22 @@ namespace ScraperCode
                 maxPageToScrape = maxPagesToScrape,
                 addedDateTime = DateTime.UtcNow
             };
-            Db.hostTbl.Add(rs);
-            await Db.SaveChangesAsync();
+
+            try
+            {
+                Db.hostTbl.Add(rs);
+                await Db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.Print(ex.Message);
+                throw;
+            }
+
+
             Items.Add(host, rs);
             return rs;
         }
-        private Dictionary<string, hostTbl> Items { get; set; }
+        private Dictionary<string, hostTbl> Items { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }

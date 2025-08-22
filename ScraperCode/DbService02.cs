@@ -224,20 +224,24 @@ public class DbService02
     }
     public async Task<hostTbl> HostAdd(Uri uri, int maxPageToScrape, string category)
     {
-        var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
+        return await HostManager.Add(uri.Host, category,maxPageToScrape);
 
-        if (tmp.StatusCode == 0)
-        {
-            return await HostAddError(tmp, maxPageToScrape, category);
-        }
+        // jeff2do -- worry about redirects later.
 
-        if (!tmp.IsRedirected)
-        {
-            return await HostAddNonRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
-        }
+        //var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
 
-        await HostAddRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
-        return await HostAddNonRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
+        //if (tmp.StatusCode == 0)
+        //{
+        //    return await HostAddError(tmp, maxPageToScrape, category);
+        //}
+
+        //if (!tmp.IsRedirected)
+        //{
+        //    return await HostAddNonRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
+        //}
+
+        //await HostAddRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
+        //return await HostAddNonRedirect(maxPageToScrape, category, tmp.HttpClientResponse);
     }
 
     private async Task<hostTbl> HostAddError(HttpClientResponseContainer tmp, int maxPageToScrape, string category)
