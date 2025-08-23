@@ -35,17 +35,21 @@ public static class Code
                 var href = a.GetAttribute("href");
                 if (href == null)
                 {
-                    throw new Exception("href is null for link tag");
+                    throw new Exception("href is NULL for link tag");
                 }
 
-                var uri = UrlParser.GetUri(new Uri(absoluteUri), href);
+                var uri =  new UriSections(new Uri(absoluteUri), href);
+                if (!uri.IsValid)
+                {
+                    throw new Exception("href is NOT VALID: " + href);
+                }
                 rv.Links.Add(new linkTbl
                 {
                     scrapeId = -1, // scrape is not set here, it is set later
                     pageId = pageId,
                     indexOnPage = linkIndexOnPage++,
                     rawLink = href,
-                    absoluteUri = uri.AbsoluteUri,
+                    absoluteUri = uri.Uri.AbsoluteUri,
                     outerHtml = a.OuterHtml,
                     innerHtml = a.InnerHtml,
                     addedDateTime = DateTime.UtcNow

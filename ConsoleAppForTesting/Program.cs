@@ -7,6 +7,10 @@ var setup = HostBuilderFactory.Create();
 // var result2 = await ConsoleAppForTesting.Test.GetFromWeb(dbSvc, "https://www.sebastianmoving.net");
 // var result1 = await ConsoleAppForTesting.Test.GetFromWeb(setup.DbSvc01, "https://jeff32819.com");
 
+
+
+
+
 setup.DbSvc02.DbResetWithoutWarning();
 await setup.DbSvc02.SeedAdd("https://jeff32819.com", "test");
 Console.WriteLine("START -- SCRAPING");
