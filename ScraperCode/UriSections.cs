@@ -87,5 +87,8 @@ public class UriSections
     public string SchemeHost => Uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
     public string SchemeHostPath => Uri.GetLeftPart(UriPartial.Path);
     public string SchemeHostPathQuery => Uri.GetLeftPart(UriPartial.Query);
+    /// <summary>
+    /// Includes full url with fragment (hash) when present
+    /// </summary>
     public string SchemeHostPathQueryFragment => Uri.AbsoluteUri;
 }

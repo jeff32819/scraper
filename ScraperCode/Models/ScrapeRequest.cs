@@ -2,7 +2,6 @@
 
 public class ScrapeRequest : IScrapeRequest
 {
-
     public bool HtmlFromCache { get; set; }
     public string? Url { get; set; } = null!;
     public string Html { get; set; } = null!;
