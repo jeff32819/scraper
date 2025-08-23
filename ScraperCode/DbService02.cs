@@ -62,7 +62,7 @@ public class DbService02
             }
             catch (Exception ex) // when (ex is TimeoutException || ex.InnerException is TimeoutException)
             {
-                Console.WriteLine("----------------------------------------------------");
+                Console.WriteLine("-- ScrapeQueue -------------------------------------");
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("----------------------------------------------------");
                 if (TimeoutRetry.RetriesMaxedOut)
@@ -149,7 +149,7 @@ public class DbService02
             }
             catch (Exception ex)
             {
-                Console.WriteLine("----------------------------------------------------");
+                Console.WriteLine("-- LinksDeleteForPage ------------------------------");
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("----------------------------------------------------");
                 if (TimeoutRetry.RetriesMaxedOut)
