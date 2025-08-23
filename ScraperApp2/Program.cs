@@ -53,7 +53,7 @@ if (Console.ReadKey().Key != ConsoleKey.R)
 var reportRs = setup.DbSvc02.GetReportRs();
 foreach (var item in reportRs)
 {
-    await ScrapeReport.Process(setup.DbSvc02, $"https://{item.host}");
+    await ScrapeReport.ProcessRazor(setup.DbSvc02, $"https://{item.host}");
     item.reportDone = true;
     setup.DbSvc02.DbCtx.hostTbl.Update(item);
     setup.DbSvc02.DbCtx.SaveChanges();

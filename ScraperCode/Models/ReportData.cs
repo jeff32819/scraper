@@ -1,14 +1,16 @@
 ﻿using System.Text.RegularExpressions;
+using Reports.Models;
 
 
 namespace ScraperCode.Models;
 
 public class ReportData
 {
-    public static List<Link> Get(List<DbScraper02.Models.hostPageLinkErrorsQry> rs)
+    public static BrokenLinkModel Get(List<DbScraper02.Models.hostPageLinkErrorsQry> rs)
     {
-        var links = new List<Link>();
-        Link? link = null;
+        var rv = new Reports.Models.BrokenLinkModel();
+        rv.Links = new List<Reports.Models.BrokenLinkModel.LinkModel>();
+        Reports.Models.BrokenLinkModel.LinkModel? link = null;
         var lastScapeId = 0;
         foreach (var item in rs)
         {
@@ -16,10 +18,10 @@ public class ReportData
             {
                 if (link != null)
                 {
-                    links.Add(link);
+                    rv.Links.Add(link);
                 }
 
-                link = new Link
+                link = new Reports.Models.BrokenLinkModel.LinkModel
                 {
                     Id = item.id,
                     RawLink = item.rawLink,
@@ -29,7 +31,7 @@ public class ReportData
                 };
             }
 
-            link?.Pages.Add(new Page
+            link?.Pages.Add(new Reports.Models.BrokenLinkModel.Page
             {
                 PageUrl = item.pageCleanLink,
                 OuterHtml = item.outerHtml
@@ -39,13 +41,13 @@ public class ReportData
 
         if (link != null)
         {
-            links.Add(link);
+            rv.Links.Add(link);
         }
-
-        return RemoteProtectedLinks(links);
+        rv.Links = RemoteProtectedLinks(rv.Links);
+        return rv;
     }
 
-    public static List<Link> RemoteProtectedLinks(List<Link> linkArr)
+    public static List<Reports.Models.BrokenLinkModel.LinkModel> RemoteProtectedLinks(List<Reports.Models.BrokenLinkModel.LinkModel> linkArr)
     {
         return linkArr.Where(link => IsLinkNotProtected(link.RawLink)).ToList();
     }
@@ -59,21 +61,5 @@ public class ReportData
             @"\.pdf"
         };
         return regs.All(reg => !Regex.IsMatch(link, reg, RegexOptions.IgnoreCase));
-    }
-
-
-    public class Link
-    {
-        public int Id { get; set; }
-        public int StatusCode { get; set; }
-        public string RawLink { get; set; }
-        public string ScrapeUri { get; set; }
-        public List<Page> Pages { get; set; } = new();
-    }
-
-    public class Page
-    {
-        public string PageUrl { get; set; }
-        public string OuterHtml { get; set; }
     }
 }

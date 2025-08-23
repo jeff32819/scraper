@@ -9,17 +9,25 @@ var setup = HostBuilderFactory.Create();
 // var result1 = await ConsoleAppForTesting.Test.GetFromWeb(setup.DbSvc01, "https://jeff32819.com");
 
 
-var url = "https://kettlecreeksnacks.com";
+
+
+
+var url = "https://jeff32819.com";
 
 
 
 
-setup.DbSvc02.DbReset();
+//setup.DbSvc02.DbReset();
 
 
-await setup.DbSvc02.SeedAdd("https://kettlecreeksnacks.com", "test");
-Console.WriteLine("START -- SCRAPING");
-await Scraper02.Process(setup.DbSvc02, setup.Logger);
-Console.WriteLine();
-Console.WriteLine("DONE -- SCRAPING");
-Console.WriteLine();
+//await setup.DbSvc02.SeedAdd(url, "test");
+//Console.WriteLine("START -- SCRAPING");
+//await Scraper02.Process(setup.DbSvc02, setup.Logger);
+//Console.WriteLine();
+//Console.WriteLine("DONE -- SCRAPING");
+//Console.WriteLine();
+
+
+var txt = await ScraperCode.ScrapeReport.ProcessRazor(setup.DbSvc02, url);
+Console.WriteLine(txt);
+File.WriteAllText("t:\\test.html", txt);
