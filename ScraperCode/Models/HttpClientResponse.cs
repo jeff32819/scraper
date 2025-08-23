@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
+
 using Newtonsoft.Json;
 // ReSharper disable UnusedMember.Global
 
@@ -36,7 +36,7 @@ public class HttpClientResponse
                                                ContentType.StartsWith("application/xhtml+xml", StringComparison.OrdinalIgnoreCase));
 
 
-
+    public string Content { get; set; } = "";
     public string? ContentType => Response.Content.Headers.ContentType?.MediaType;
     public int StatusCode => (int)Response.StatusCode;
     public HttpStatusCode StatusCodeEnum => Response.StatusCode;
@@ -44,6 +44,7 @@ public class HttpClientResponse
 
     private void Init()
     {
+
         foreach (var header in Response.Headers)
         {
             ResponseHeaders[header.Key] = header.Value;
@@ -52,41 +53,22 @@ public class HttpClientResponse
         {
             ContentHeaders[header.Key] = header.Value;
         }
+        CharsetParsed = new CharsetParser(Response);
     }
-
+    /// <summary>
+    /// Charset parsed from the Content-Type header. Use this to read the content correctly.
+    /// </summary>
+    public CharsetParser  CharsetParsed { get; private set; }
+    /// <summary>
+    /// Represents a model for a redirection, including the source URL and the HTTP status code.
+    /// </summary>
+    /// <remarks>This class is typically used to describe redirection details, such as the originating URL and
+    /// the HTTP status code associated with the redirection.</remarks>
     public class RedirectedModel
     {
         public Uri FromUrl { get; set; }
         public int StatusCode { get; set; }
     }
 
-    public async Task<string> GetContentAsync()
-    {
-        Debug.Print("GetContentAsync()");
-        Debug.Print(RequestUri.ToString());
-
-        var contentType = Response.Content.Headers.ContentType;
-        var charset = contentType?.CharSet;
-
-        // Normalize unsupported charset values
-        if (!string.IsNullOrEmpty(charset))
-        {
-            // List of known invalid charsets to normalize
-            var invalidCharsets = new[] { "utf8", "utf8mb4", "utf-8mb4" };
-            if (invalidCharsets.Any(c => charset.Equals(c, StringComparison.OrdinalIgnoreCase)))
-            {
-                if (contentType != null && !string.IsNullOrEmpty(contentType.MediaType))
-                {
-                    var newContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType.MediaType)
-                    {
-                        CharSet = "utf-8"
-                    };
-                    Response.Content.Headers.ContentType = newContentType;
-                }
-                // else: do nothing, as we cannot set a new content type without a valid media type
-            }
-        }
-
-        return await Response.Content.ReadAsStringAsync();
-    }
+    public async Task<string> GetContentAsync() => CharsetParsed.IsValid ? await Response.Content.ReadAsStringAsync() : "";
 }

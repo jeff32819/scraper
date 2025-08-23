@@ -45,7 +45,7 @@ public static class HttpClientHelper
         if (responseContainer.IsRedirected)
         {
             var uriSections = new UriSections(url, responseContainer.HttpClientResponse.RedirectedLocation);
-            responseContainer = await GetFromHttpClient(uriSections.Uri, new RedirectedModel
+            responseContainer = await GetFromHttpClient(uriSections.Uri,  new RedirectedModel
             {
                 FromUrl = responseContainer.RequestUri,
                 StatusCode = responseContainer.HttpClientResponse.StatusCode
