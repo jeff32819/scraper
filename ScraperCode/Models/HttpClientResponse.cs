@@ -62,25 +62,29 @@ public class HttpClientResponse
 
     public async Task<string> GetContentAsync()
     {
-
         Debug.Print("GetContentAsync()");
         Debug.Print(RequestUri.ToString());
 
-
         var contentType = Response.Content.Headers.ContentType;
         var charset = contentType?.CharSet;
-                // Normalize unsupported charset
-        if (!string.IsNullOrEmpty(charset) && charset.Equals("utf8mb4", StringComparison.OrdinalIgnoreCase))
+
+        // Normalize unsupported charset values
+        if (!string.IsNullOrEmpty(charset))
         {
-            if (contentType != null && !string.IsNullOrEmpty(contentType.MediaType))
+            // List of known invalid charsets to normalize
+            var invalidCharsets = new[] { "utf8", "utf8mb4", "utf-8mb4" };
+            if (invalidCharsets.Any(c => charset.Equals(c, StringComparison.OrdinalIgnoreCase)))
             {
-                var newContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType.MediaType)
+                if (contentType != null && !string.IsNullOrEmpty(contentType.MediaType))
                 {
-                    CharSet = "utf-8"
-                };
-                Response.Content.Headers.ContentType = newContentType;
+                    var newContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType.MediaType)
+                    {
+                        CharSet = "utf-8"
+                    };
+                    Response.Content.Headers.ContentType = newContentType;
+                }
+                // else: do nothing, as we cannot set a new content type without a valid media type
             }
-            // else: do nothing, as we cannot set a new content type without a valid media type
         }
 
         return await Response.Content.ReadAsStringAsync();
