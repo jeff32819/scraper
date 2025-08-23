@@ -1,8 +1,4 @@
-﻿using System;
-
-using Microsoft.EntityFrameworkCore;
-
-using ScraperCode.Models;
+﻿using ScraperCode.Models;
 
 using static ScraperCode.Models.HttpClientResponse;
 

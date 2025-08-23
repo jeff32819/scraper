@@ -14,11 +14,11 @@ public class ScrapeQueue
 
     public class QueueItemModel
     {
-
         public QueueItemModel()
         {
             // queue is empty
         }
+
         public QueueItemModel(scrapeQueueQry rs)
         {
             scrapeId = rs.scrapeId;
@@ -30,17 +30,10 @@ public class ScrapeQueue
             absoluteUri = rs.absoluteUri;
             headStatusCode = rs.headStatusCode;
             statusCode = rs.statusCode;
-
         }
 
 
         public int scrapeId { get; set; }
-
-        public bool CheckIfSameHost(string link)
-        {
-            var uri = new Uri(link);
-            return string.Equals(uri.Host, host, StringComparison.OrdinalIgnoreCase);
-        }        
 
         public int pageId { get; set; }
 
@@ -57,5 +50,11 @@ public class ScrapeQueue
         public string headStatusCode { get; set; }
 
         public string statusCode { get; set; }
+
+        public bool CheckIfSameHost(string link)
+        {
+            var uri = new Uri(link);
+            return string.Equals(uri.Host, host, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

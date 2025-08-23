@@ -1,4 +1,4 @@
-﻿namespace CodeBase
+﻿namespace ScraperCode
 {
     public class LogFilePath
     {

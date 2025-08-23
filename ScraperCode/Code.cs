@@ -1,21 +1,15 @@
 ﻿using System.Diagnostics;
+
 using AngleSharp;
+
 using DbWebScraper.Models;
-using Jeff32819DLL.HtmlParser;
+
 using ScraperCode.Models;
 
 namespace ScraperCode;
 
 public static class Code
 {
-    public static bool CalcIsInternalPage(DomainConfig parentDomain, string child)
-    {
-        var childDomain = new DomainConfig(child);
-        Debug.Print("child  = " + childDomain.Domain);
-        Debug.Print("parent = " + parentDomain.Domain);
-        Debug.Print("");
-        return string.Equals(childDomain.Domain, parentDomain.Domain, StringComparison.CurrentCultureIgnoreCase);
-    }
     public static string CalcAbsoluteUri(UriSections uriSections)
     {
         return uriSections.SchemeHostPathQuery.TrimEnd('/');
@@ -66,27 +60,6 @@ public static class Code
     }
 
 
-    public static bool EscKeyPressed()
-    {
-        return Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape;
-    }
-
-    public static void DisplayDebugSql()
-    {
-        Debug.Print("/*** SQL START ***/");
-        Debug.Print("/*");
-        Debug.Print("DELETE FROM [WebScraper].[dbo].[scrapeTbl]");
-        Debug.Print("DELETE FROM [WebScraper].[dbo].[linkTbl]");
-        Debug.Print("DELETE FROM [WebScraper].[dbo].[pageTbl]");
-        Debug.Print("*/");
-        //Debug.Print($"-- DELETE FROM [WebScraper].[dbo].[pageTbl] WHERE host = '{StartUri.Host}'");
-        //Debug.Print($"SELECT * FROM [WebScraper].[dbo].[pageTbl] WHERE host = '{StartUri.Host}'");
-        Debug.Print("/*** FULL TABLES ***/");
-        Debug.Print("SELECT * FROM [WebScraper].[dbo].[pageTbl]");
-        Debug.Print("SELECT * FROM [WebScraper].[dbo].[scrapeTbl]");
-        Debug.Print("SELECT * FROM [WebScraper].[dbo].[linkTbl]");
-        Debug.Print("/*** SQL END ***/");
-    }
 
     public static void Report(DbService dbSvc)
     {
