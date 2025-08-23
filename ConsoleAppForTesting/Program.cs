@@ -11,7 +11,7 @@ var setup = HostBuilderFactory.Create();
 
 
 
-setup.DbSvc02.DbResetWithoutWarning();
+setup.DbSvc02.DbReset();
 await setup.DbSvc02.SeedAdd("https://jeff32819.com", "test");
 Console.WriteLine("START -- SCRAPING");
 await Scraper02.Process(setup.DbSvc02, setup.Logger);
