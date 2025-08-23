@@ -35,48 +35,6 @@ public class DbService02
     }
 
 
-    public ScrapeQueueModel ScrapeQueue()
-    {
-        TimeoutRetry.Reset();
-        while (TimeoutRetry.Running)
-        {
-            try
-            {
-                var count = DbCtx.scrapeQueueQry.Count();
-                if (count == 0)
-                {
-                    return new ScrapeQueueModel
-                    {
-                        QueueCount = 0,
-                        QueueItem = new scrapeQueueQry()
-                    };
-                }
-
-                var skip = new Random().Next(count);
-                var rs = DbCtx.scrapeQueueQry.Skip(skip).Take(1).First();
-                return new ScrapeQueueModel
-                {
-                    QueueCount = count,
-                    QueueItem = rs
-                };
-            }
-            catch (Exception ex) // when (ex is TimeoutException || ex.InnerException is TimeoutException)
-            {
-                Console.WriteLine("-- ScrapeQueue -------------------------------------");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("----------------------------------------------------");
-                if (TimeoutRetry.RetriesMaxedOut)
-                {
-                    throw;
-                }
-
-                TimeoutRetry.Delay();
-            }
-        }
-
-        throw new Exception("timeout");
-    }
-
     /// <summary>
     ///     Maybe need to do more after it is redirected.
     /// </summary>
@@ -428,5 +386,45 @@ public class DbService02
         await db.ExecuteAsync("update pageTbl set linkCount = @linkCount where id = @pageId", new { pageId = page.id, linkCount });
     }
 
+    public async Task<ScrapeQueueModel?> ScrapeQueueDapperAsync()
+    {
+        TimeoutRetry.Reset();
+        await using var db = new SqlConnection(DbConnString);
+        var random = new Random();
+
+        while (TimeoutRetry.Running)
+        {
+            try
+            {
+                var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM scrapeQueueQry");
+                if (count == 0)
+                    return null;
+
+                var skip = random.Next(count);
+                var rs = await db.QueryFirstOrDefaultAsync<scrapeQueueQry>("SELECT * FROM scrapeQueueQry ORDER BY scrapeId OFFSET @Skip ROWS FETCH NEXT 1 ROWS ONLY",
+                    new { Skip = skip });
+
+                if (rs == null)
+                    return null;
+
+                return new ScrapeQueueModel
+                {
+                    QueueCount = count,
+                    QueueItem = rs
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("-- ScrapeQueueDapperAsync -------------------------------------");
+                Console.WriteLine(ex.ToString());
+                Console.WriteLine("---------------------------------------------------------------");
+                if (TimeoutRetry.RetriesMaxedOut)
+                    throw;
+                TimeoutRetry.Delay();
+            }
+        }
+
+        throw new Exception("timeout");
+    }
 
 };

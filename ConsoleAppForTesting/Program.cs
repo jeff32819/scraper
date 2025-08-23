@@ -11,23 +11,7 @@ var setup = HostBuilderFactory.Create();
 
 var url = "https://kettlecreeksnacks.com";
 
-var handler = new HttpClientHandler
-{
-    AllowAutoRedirect = false
-};
 
-var client = new HttpClient(handler);
-client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/74.0.3729.1235");
-client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
-var tmp = await client.GetAsync(url);
-var xxx = new HttpClientResponse(tmp, null);
-Console.WriteLine("START");
-Console.WriteLine();
-Console.WriteLine(await xxx.GetContentAsync());
-Console.WriteLine();
-Console.WriteLine("DONE -- PRESS ANY KEY TO EXIT");
-Console.ReadKey();
-return;
 
 
 setup.DbSvc02.DbReset();

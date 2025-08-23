@@ -20,9 +20,8 @@ public static class Scraper02
 
     public static async Task Process(DbService02 dbSvc, NLogger setupLogger)
     {
-        while (dbSvc.ScrapeQueue() is { QueueCount: > 0 } queueItem)
+        while (await dbSvc.ScrapeQueueDapperAsync() is { } queueItem)
         {
-
             Console.WriteLine($"left = {queueItem.QueueCount}; {queueItem.QueueItem.cleanLink}");
 
             var scrape = await ScrapeWebAndUpdate(dbSvc, queueItem);
@@ -54,9 +53,11 @@ public static class Scraper02
                     continue; // too many links, skip this page
             }
 
+            
             foreach (var link in linkParser.LinkArr)
             {
-                Console.WriteLine($"Adding link: {JsonConvert.SerializeObject(link, Formatting.Indented)}");
+                Console.WriteLine($"Adding link: {link.indexOnPage} : {link.rawLink}");
+                //Console.WriteLine($"Adding link: {JsonConvert.SerializeObject(link, Formatting.Indented)}");
                 await dbSvc.LinkAdd(page, link);
             }
             // add page when scaped IF the content is "text/html"
