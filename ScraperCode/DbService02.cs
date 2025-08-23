@@ -101,7 +101,6 @@ public class DbService02
                 var timeTaken = new TimeTaken();
                 await using var db = new SqlConnection(DbConnString);
                 await db.ExecuteAsync("linkDeleteForPageSp", new { pageId });
-
                 Console.WriteLine($"LinksDeleteForPage: links for {pageId} deleted in {timeTaken.Seconds()} seconds");
                 return;
             }
