@@ -19,10 +19,10 @@ public class HttpClientResponse
     public Uri RequestUri { get; }
     public HttpResponseMessage Response { get; }
 
-    public Dictionary<string, IEnumerable<string>> ResponseHeaders { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, IEnumerable<string>> ResponseHeaders { get; } = new();
     public string ResponseHeadersToJson => JsonConvert.SerializeObject(ResponseHeaders, Formatting.None);
     public string ContentHeadersToJson => JsonConvert.SerializeObject(ContentHeaders, Formatting.None);
-    public Dictionary<string, IEnumerable<string>> ContentHeaders { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, IEnumerable<string>> ContentHeaders { get; } = new();
 
     /// <summary>
     /// Is the status code 3xx status code? Useful to see if it was redirected.
@@ -35,8 +35,6 @@ public class HttpClientResponse
         !string.IsNullOrEmpty(ContentType) && (ContentType.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) ||
                                                ContentType.StartsWith("application/xhtml+xml", StringComparison.OrdinalIgnoreCase));
 
-
-    public string Content { get; set; } = "";
     public string? ContentType => Response.Content.Headers.ContentType?.MediaType;
     public int StatusCode => (int)Response.StatusCode;
     public HttpStatusCode StatusCodeEnum => Response.StatusCode;
@@ -66,9 +64,9 @@ public class HttpClientResponse
     /// the HTTP status code associated with the redirection.</remarks>
     public class RedirectedModel
     {
-        public Uri FromUrl { get; set; }
-        public int StatusCode { get; set; }
+        public required Uri FromUrl { get; init; }
+        public int StatusCode { get; init; }
     }
 
-    public async Task<string> GetContentAsync() => CharsetParsed.IsValid ? await Response.Content.ReadAsStringAsync() : "";
+    public async Task<string> GetContentAsync() => !CharsetParsed.IsValid ? "" : await Response.Content.ReadAsStringAsync();
 }

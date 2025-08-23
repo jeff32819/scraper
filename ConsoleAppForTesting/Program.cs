@@ -21,9 +21,11 @@ client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; W
 client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to 30 seconds
 var tmp = await client.GetAsync(url);
 var xxx = new HttpClientResponse(tmp, null);
-Console.WriteLine("done1111111111111111111111");
+Console.WriteLine("START");
+Console.WriteLine();
 Console.WriteLine(await xxx.GetContentAsync());
-Console.WriteLine("done2222222222222222222222222");
+Console.WriteLine();
+Console.WriteLine("DONE -- PRESS ANY KEY TO EXIT");
 Console.ReadKey();
 return;
 
