@@ -13,6 +13,8 @@ public partial class hostPageLinkErrorsQry
 
     public string pageCleanLink { get; set; }
 
+    public int statusCode { get; set; }
+
     public string rawLink { get; set; }
 
     public string linkCleanLink { get; set; }
@@ -24,8 +26,6 @@ public partial class hostPageLinkErrorsQry
     public int scrapeId { get; set; }
 
     public string scrapeCleanLink { get; set; }
-
-    public int statusCode { get; set; }
 
     public DateTime addedDateTime { get; set; }
 }

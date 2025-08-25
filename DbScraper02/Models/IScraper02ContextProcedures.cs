@@ -14,11 +14,15 @@ namespace DbScraper02.Models
     public partial interface IScraper02ContextProcedures
     {
         Task<int> fileTypeAllowedToScrapeInsertSpAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> fixScrapeHostNotInHostTblSpAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> importHostFromPreviousDatabaseSpAsync(int? rows, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> linkAddSpAsync(int? pageId, int? indexOnPage, string host, string cleanLink, string fullLink, string rawLink, string innerHtml, string outerHtml, string errorMessage, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> linkDeleteForPageSpAsync(int? pageId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> pageAddSpAsync(string host, string fullLink, string cleanLink, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> pageUpdateLinkCountAsync(int? pageId, int? linkCount, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> pageUpdateLinkCountOverLimitAsync(int? pageId, int? linkCount, int? linkCountOverLimit, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> scrapeAddFromHostWhereMaxPagesToScrapeSpAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> scrapeAddSpAsync(string host, string cleanLink, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<scrapeQueueSpResult>> scrapeQueueSpAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

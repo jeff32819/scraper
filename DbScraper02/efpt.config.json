@@ -16,6 +16,10 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[domainsToSkipAutoScrapeTbl]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[fileTypeAllowedToScrapeTbl]",
          "ObjectType": 0
       },
@@ -64,6 +68,14 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[fixScrapeHostNotInHostTblSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[importHostFromPreviousDatabaseSp]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[linkAddSp]",
          "ObjectType": 1
       },
@@ -84,7 +96,15 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[scrapeAddFromHostWhereMaxPagesToScrapeSp]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[scrapeAddSp]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[scrapeQueueSp]",
          "ObjectType": 1
       }
    ],

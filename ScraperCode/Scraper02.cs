@@ -1,6 +1,6 @@
 ﻿using CodeBase;
+
 using DbScraper02.Models;
-using Newtonsoft.Json;
 
 // ReSharper disable InvertIf
 
@@ -11,7 +11,7 @@ public static class Scraper02
     private const int PageMaxLinkCount = 200;
 
 
-    private static async Task<LinkParser> GetLinkParser(scrapeQueueQry scrapeQueueQry, string scrapedLink, string html, int pageId)
+    private static async Task<LinkParser> GetLinkParser(scrapeQueueSpResult scrapeQueueQry, string scrapedLink, string html, int pageId)
     {
         var linkParser = new LinkParser(scrapeQueueQry, scrapedLink);
         await linkParser.Init(html, pageId);
@@ -22,7 +22,7 @@ public static class Scraper02
     {
         while (await dbSvc.ScrapeQueueDapperAsync() is { } queueItem)
         {
-            Console.WriteLine($"left = {queueItem.QueueCount}; {queueItem.QueueItem.cleanLink}");
+            Console.WriteLine($"{queueItem.queueCount} = queue count; {queueItem.cleanLink}");
 
             var scrape = await ScrapeWebAndUpdate(dbSvc, queueItem);
             var page = dbSvc.PageLookup(scrape);
@@ -40,7 +40,7 @@ public static class Scraper02
             {
                 continue; // page not found, skip this scrape
             }
-            var linkParser = await GetLinkParser(queueItem.QueueItem, scrape.cleanLink, scrape.html, page.id);
+            var linkParser = await GetLinkParser(queueItem, scrape.cleanLink, scrape.html, page.id);
             await dbSvc.LinksDeleteForPage(page.id);
 
             switch (linkParser.LinkArr.Count)
@@ -52,11 +52,9 @@ public static class Scraper02
                     await dbSvc.UpdateLinkCountOverLimit(page, linkParser.LinkArr.Count, PageMaxLinkCount);
                     continue; // too many links, skip this page
             }
-
-            
             foreach (var link in linkParser.LinkArr)
             {
-                Console.WriteLine($"Adding link: {link.indexOnPage} : {link.rawLink}");
+                Console.WriteLine($"{queueItem.queueCount} = queue count; adding link: {link.indexOnPage} : {link.rawLink}");
                 //Console.WriteLine($"Adding link: {JsonConvert.SerializeObject(link, Formatting.Indented)}");
                 await dbSvc.LinkAdd(page, link);
             }
@@ -77,36 +75,34 @@ public static class Scraper02
         }
     }
 
-    public static async Task<scrapeTbl> ScrapeWebAndUpdate(DbService02 dbSvc, DbService02.ScrapeQueueModel queueItem)
+    public static async Task<scrapeTbl> ScrapeWebAndUpdate(DbService02 dbSvc, scrapeQueueSpResult queueItem)
     {
-        if (queueItem.QueueItem.statusCode != -1) // already done
+        if (queueItem.statusCode != -1) // already done
         {
-            return dbSvc.DbCtx.scrapeTbl.Single(x => x.id == queueItem.QueueItem.scrapeId);
+            return dbSvc.DbCtx.scrapeTbl.Single(x => x.id == queueItem.scrapeId);
         }
 
-        Console.WriteLine(queueItem.QueueItem.cleanLink);
+        Console.WriteLine(queueItem.cleanLink);
 
-        var uri = new Uri(queueItem.QueueItem.cleanLink);
+        var uri = new Uri(queueItem.cleanLink);
 
         if (!uri.IsAbsoluteUri)
         {
             var errorMessage = $"NotAbsoluteUri: {uri.ToString()}";
-            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, 0, errorMessage);
+            return await dbSvc.ScrapeErrorMessage(queueItem, 0, errorMessage);
         }
 
         var tmp = await HttpClientHelper.GetHttpClientResponse(uri);
         if (tmp.StatusCode == 0)
         {
-            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.StatusCode, tmp.ErrorMessage);
+            return await dbSvc.ScrapeErrorMessage(queueItem, tmp.StatusCode, tmp.ErrorMessage);
         }
 
         if (tmp.IsRedirected)
         {
             var errorMessage = $"Redirected: {tmp.HttpClientResponse.RedirectedLocation}";
-            return await dbSvc.ScrapeErrorMessage(queueItem.QueueItem, tmp.HttpClientResponse.StatusCode, errorMessage);
+            return await dbSvc.ScrapeErrorMessage(queueItem, tmp.HttpClientResponse.StatusCode, errorMessage);
         }
-
-
-        return await dbSvc.ScrapeUpdateHtml(queueItem.QueueItem, tmp);
+        return await dbSvc.ScrapeUpdateHtml(queueItem, tmp);
     }
 }

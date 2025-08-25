@@ -13,6 +13,8 @@ public partial class Scraper02Context : DbContext
     {
     }
 
+    public virtual DbSet<domainsToSkipAutoScrapeTbl> domainsToSkipAutoScrapeTbl { get; set; }
+
     public virtual DbSet<fileTypeAllowedToScrapeTbl> fileTypeAllowedToScrapeTbl { get; set; }
 
     public virtual DbSet<hostPageLinkErrorsQry> hostPageLinkErrorsQry { get; set; }
@@ -37,6 +39,15 @@ public partial class Scraper02Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<domainsToSkipAutoScrapeTbl>(entity =>
+        {
+            entity.HasKey(e => e.domainName);
+
+            entity.Property(e => e.domainName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<fileTypeAllowedToScrapeTbl>(entity =>
         {
             entity.HasKey(e => e.fileExt).HasName("PK_fileTypeAllowedToScrape");
@@ -92,6 +103,8 @@ public partial class Scraper02Context : DbContext
         modelBuilder.Entity<hostTbl>(entity =>
         {
             entity.HasKey(e => e.id).HasName("PK_hostPathToScrapeTbl");
+
+            entity.HasIndex(e => e.host, "IX_hostTbl").IsUnique();
 
             entity.Property(e => e.addedDateTime).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.category)

@@ -40,7 +40,7 @@ public class DbService02
     /// </summary>
     /// <param name="queueItemQueueItem"></param>
     /// <param name="tmp"></param>
-    public async Task<scrapeTbl> ScrapeErrorMessage(scrapeQueueQry queueItemQueueItem, int statusCode, string errorMessage)
+    public async Task<scrapeTbl> ScrapeErrorMessage(scrapeQueueSpResult queueItemQueueItem, int statusCode, string errorMessage)
     {
         var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
         rs.statusCode = statusCode;
@@ -49,7 +49,7 @@ public class DbService02
         await DbCtx.SaveChangesAsync();
         return rs;
     }
-    public async Task PageAddAfterScraped(scrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+    public async Task PageAddAfterScraped(scrapeQueueSpResult queueItemQueueItem, HttpClientResponseContainer tmp)
     {
         var host = await HostManager.Lookup(queueItemQueueItem.host);
         if (host.maxPageToScrape < 0)
@@ -63,7 +63,7 @@ public class DbService02
         }
         await DbCtx.Procedures.pageAddSpAsync(host.host, queueItemQueueItem.cleanLink, queueItemQueueItem.cleanLink);
     }
-    public async Task<scrapeTbl> ScrapeUpdateHtml(scrapeQueueQry queueItemQueueItem, HttpClientResponseContainer tmp)
+    public async Task<scrapeTbl> ScrapeUpdateHtml(scrapeQueueSpResult queueItemQueueItem, HttpClientResponseContainer tmp)
     {
         await PageAddAfterScraped(queueItemQueueItem, tmp);
         var rs = DbCtx.scrapeTbl.Single(x => x.id == queueItemQueueItem.scrapeId);
@@ -162,11 +162,7 @@ public class DbService02
         await DbCtx.Procedures.scrapeAddSpAsync(host, cleanLink);
     }   
 
-    public class ScrapeQueueModel
-    {
-        public scrapeQueueQry QueueItem { get; set; } = null!;
-        public int QueueCount { get; set; }
-    }
+
 
     #region Host Methods
 
@@ -385,45 +381,10 @@ public class DbService02
         await db.ExecuteAsync("update pageTbl set linkCount = @linkCount where id = @pageId", new { pageId = page.id, linkCount });
     }
 
-    public async Task<ScrapeQueueModel?> ScrapeQueueDapperAsync()
+    public async Task<scrapeQueueSpResult?> ScrapeQueueDapperAsync()
     {
-        TimeoutRetry.Reset();
-        await using var db = new SqlConnection(DbConnString);
-        var random = new Random();
-
-        while (TimeoutRetry.Running)
-        {
-            try
-            {
-                var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM scrapeQueueQry");
-                if (count == 0)
-                    return null;
-
-                var skip = random.Next(count);
-                var rs = await db.QueryFirstOrDefaultAsync<scrapeQueueQry>("SELECT * FROM scrapeQueueQry ORDER BY scrapeId OFFSET @Skip ROWS FETCH NEXT 1 ROWS ONLY",
-                    new { Skip = skip });
-
-                if (rs == null)
-                    return null;
-
-                return new ScrapeQueueModel
-                {
-                    QueueCount = count,
-                    QueueItem = rs
-                };
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("-- ScrapeQueueDapperAsync -------------------------------------");
-                Console.WriteLine(ex.ToString());
-                Console.WriteLine("---------------------------------------------------------------");
-                if (TimeoutRetry.RetriesMaxedOut)
-                    throw;
-                TimeoutRetry.Delay();
-            }
-        }
-
-        throw new Exception("timeout");
+        var rs = await DbCtx.Procedures.scrapeQueueSpAsync();
+        return rs.FirstOrDefault();
     }
 
-};
+};  

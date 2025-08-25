@@ -4,9 +4,9 @@ using DbScraper02.Models;
 
 namespace ScraperCode;
 
-public class LinkParser(scrapeQueueQry scrapeQueueQry, string scrapedLink)
+public class LinkParser(scrapeQueueSpResult scrapeQueueQry, string scrapedLink)
 {
-    public scrapeQueueQry ScrapeQueueQry { get; set; } = scrapeQueueQry;
+    public scrapeQueueSpResult ScrapeQueueQry { get; set; } = scrapeQueueQry;
     public string ScrapedLink { get; set; } = scrapedLink;
     public Dictionary<string, pageTbl> PageDic { get; set; } = [];
     public List<linkTbl> LinkArr { get; set; } = [];
@@ -40,7 +40,7 @@ public class LinkParser(scrapeQueueQry scrapeQueueQry, string scrapedLink)
 
     public class LinkItem
     {
-        public LinkItem(scrapeQueueQry scrapeQueueQry, string scrapedLink, int indexOnPage, IElement a, int pageId)
+        public LinkItem(scrapeQueueSpResult scrapeQueueQry, string scrapedLink, int indexOnPage, IElement a, int pageId)
         {
             Link = new linkTbl
             {
