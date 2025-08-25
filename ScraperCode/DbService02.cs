@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 using Dapper;
 
@@ -74,6 +75,9 @@ public class DbService02
         rs.contentHeaders = tmp.HttpClientResponse.ContentHeadersToJson;
         rs.errorMessage = "";
         rs.scrapeDateTime = DateTime.UtcNow;
+
+        Debug.Print(Newtonsoft.Json.JsonConvert.SerializeObject(rs, Newtonsoft.Json.Formatting.Indented));
+
         await DbCtx.SaveChangesAsync();
         return rs;
     }
