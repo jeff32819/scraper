@@ -224,9 +224,7 @@ public partial class Scraper02Context : DbContext
                 .IsRequired()
                 .IsUnicode(false);
             entity.Property(e => e.contentHeaders).IsUnicode(false);
-            entity.Property(e => e.contentType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.contentType).IsUnicode(false);
             entity.Property(e => e.errorMessage).IsUnicode(false);
             entity.Property(e => e.host)
                 .IsRequired()
