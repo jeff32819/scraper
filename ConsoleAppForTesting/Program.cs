@@ -15,6 +15,18 @@ var setup = HostBuilderFactory.Create();
 var url = "https://jeff32819.com";
 
 
+var txt = File.ReadAllText("t:\\headers.json");
+
+var obj = new ScraperCode.ResponseHeaderContainer(txt);
+
+
+obj.PrintToConsole();
+
+
+
+Console.WriteLine();
+
+
 
 
 //setup.DbSvc02.DbReset();
@@ -28,6 +40,6 @@ var url = "https://jeff32819.com";
 //Console.WriteLine();
 
 
-var txt = await ScraperCode.ScrapeReport.ProcessRazor(setup.DbSvc02, url);
-Console.WriteLine(txt);
-File.WriteAllText("t:\\test.html", txt);
+//var txt = await ScraperCode.ScrapeReport.ProcessRazor(setup.DbSvc02, url);
+//Console.WriteLine(txt);
+//File.WriteAllText("t:\\test.html", txt);

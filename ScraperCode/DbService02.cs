@@ -71,8 +71,8 @@ public class DbService02
         rs.statusCode = tmp.HttpClientResponse.StatusCode;
         rs.html = await tmp.HttpClientResponse.GetContentAsync();
         rs.contentType = tmp.HttpClientResponse.ContentType ?? "UNKNOWN";
-        rs.responseHeaders = tmp.HttpClientResponse.ResponseHeadersToJson;
-        rs.contentHeaders = tmp.HttpClientResponse.ContentHeadersToJson;
+        rs.responseHeaders = tmp.HttpClientResponse.ResponseHeaders.ToJson;
+        rs.contentHeaders = tmp.HttpClientResponse.ContentHeaders.ToJson;
         rs.errorMessage = "";
         rs.scrapeDateTime = DateTime.UtcNow;
 

@@ -29,8 +29,8 @@ public static class HttpClientHelper
             StatusCode = responseContainer.HttpClientResponse.StatusCodeToString,
             ContentType = responseContainer.HttpClientResponse.ContentType ?? "UNKNOWN",
             Html = await responseContainer.HttpClientResponse.GetContentAsync(),
-            ResponseHeaders = responseContainer.HttpClientResponse.ResponseHeaders,
-            ContentHeaders = responseContainer.HttpClientResponse.ContentHeaders,
+            ResponseHeaders = responseContainer.HttpClientResponse.ResponseHeaders.Dictionary,
+            ContentHeaders = responseContainer.HttpClientResponse.ContentHeaders.Dictionary,
             WasRedirected = wasRedirected,
             RedirectStatusCode = redirectedStatusCode,
             RedirectedFromUrl = redirectedFromUrl

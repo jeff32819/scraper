@@ -60,7 +60,6 @@ public static class Code
     }
 
 
-
     public static void Report(DbService dbSvc)
     {
         const int showHostWithLessThanXPages = 5;
