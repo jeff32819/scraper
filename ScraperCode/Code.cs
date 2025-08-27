@@ -3,7 +3,7 @@
 using AngleSharp;
 
 using DbWebScraper.Models;
-
+using Jeff32819DLL.MiscCore20;
 using ScraperCode.Models;
 
 namespace ScraperCode;

@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using CodeBase;
+using Jeff32819DLL.MiscCore20;
 using ScraperCode;
 
 namespace ScraperApp2;

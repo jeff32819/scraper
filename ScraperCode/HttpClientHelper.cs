@@ -1,4 +1,5 @@
-﻿using ScraperCode.Models;
+﻿using Jeff32819DLL.MiscCore20;
+using ScraperCode.Models;
 
 using static ScraperCode.Models.HttpClientResponse;
 

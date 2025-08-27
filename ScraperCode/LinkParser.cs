@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 using DbScraper02.Models;
+using Jeff32819DLL.MiscCore20;
 
 namespace ScraperCode;
 
