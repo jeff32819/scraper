@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data.Common;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 using Dapper;
@@ -391,4 +392,5 @@ public class DbService02
         return rs.FirstOrDefault();
     }
 
+    public hostTbl HostByHostName(string host) => DbCtx.hostTbl.Single(x => x.host == host);
 };  

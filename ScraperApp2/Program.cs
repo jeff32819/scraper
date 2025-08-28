@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 using CodeBase;
 
@@ -14,7 +15,10 @@ await setup.DbSvc02.StaticDataUpdate();
 Console.Title = $"ScraperApp2 (v{appVersion})";
 
 const string devServer = "panamacity";
-if (RunCode.IsDevServer(devServer))
+var isDevServer = RunCode.IsDevServer(devServer);
+
+
+if (isDevServer)
 {
     Console.WriteLine($"DEV SERVER: {devServer}");
     //  add later after using db2 // setup.DbSvc02.DbReset();
@@ -46,16 +50,18 @@ Console.WriteLine();
 Console.WriteLine("DONE -- SCRAPING");
 Console.WriteLine();
 Console.WriteLine("Press R to run reports, or any other key to exit");
-if (Console.ReadKey().Key != ConsoleKey.R)
+
+switch (isDevServer)
 {
-    return;
-}
-var reportRs = setup.DbSvc02.GetReportRs();
-foreach (var item in reportRs)
-{
-    await ScrapeReport.ProcessRazor(setup.DbSvc02, $"https://{item.host}");
-    item.reportDone = true;
-    setup.DbSvc02.DbCtx.hostTbl.Update(item);
-    setup.DbSvc02.DbCtx.SaveChanges();
-    Console.WriteLine($"Report done for {item.host}");
+    case true:
+        await RunCode.RunReports(setup.DbSvc02);
+        break;
+    default:
+    {
+        if (Console.ReadKey().Key == ConsoleKey.R)
+        {
+            await RunCode.RunReports(setup.DbSvc02);
+        }
+        break;
+    }
 }

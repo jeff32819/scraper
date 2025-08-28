@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using CodeBase;
+using DbScraper02.Models;
 using Jeff32819DLL.MiscCore20;
 using ScraperCode;
 
@@ -87,6 +88,7 @@ public static class RunCode
             log.Info("No files found in links-to-parse folder");
             return arr;
         }
+
         foreach (var file in files)
         {
             var seeds = await FromFileToList(file, log);
@@ -98,15 +100,77 @@ public static class RunCode
         return arr;
     }
 
-    public class FileRow
-    {
-        public string Category { get; set; }
-        public string Link { get; set; }
-    }
-
     public static bool IsDevServer(string devPcName)
     {
-        return (Environment.MachineName.Equals(devPcName, StringComparison.OrdinalIgnoreCase));
+        return Environment.MachineName.Equals(devPcName, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    ///     Run report by host e.g. jeff32819.com
+    /// </summary>
+    /// <param name="db"></param>
+    /// <param name="host"></param>
+    /// <param name="saveChanges"></param>
+    /// <returns></returns>
+    public static async Task ReportRunByHost(DbService02 db, string host, bool saveChanges = true)
+    {
+        var rs = db.HostByHostName(host);
+        await ReportRunEach(db, rs, saveChanges);
+    }
+
+    public static async Task RunReports(DbService02 db)
+    {
+        var reportRs = db.GetReportRs();
+        foreach (var item in reportRs)
+        {
+            await ReportRunEach(db, item, false);
+        }
+    }
+
+    private static async Task ReportCreateAndSave(DbService02 db, hostTbl item)
+    {
+        const string rootFolder = "t:\\scraper-bad-link-reports";
+        Directory.CreateDirectory(rootFolder);
+        Directory.CreateDirectory(Path.Combine(rootFolder, "done"));
+        var filePath = Path.Combine(rootFolder, $"{item.host}.html");
+        var donePath = Path.Combine(rootFolder, "done", $"{item.host}.html");
+        if (File.Exists(donePath))
+        {
+            if (!File.Exists(filePath))
+            {
+                return;
+            }
+
+            File.Delete(filePath); // file should not be here if done file exists.
+            return;
+        }
+
+        var reportText = await ScrapeReport.ProcessRazor(db, $"https://{item.host}");
+        await File.WriteAllTextAsync(filePath, reportText);
+    }
+
+    private static async Task ReportRunEach(DbService02 db, hostTbl item, bool saveChanges = true)
+    {
+        await ReportCreateAndSave(db, item);
+
+        // not going to update db for now, just use file system with root & done folder to track.
+        //if (!saveChanges)
+        //{
+        //    return;
+        //}
+        // await ReportMarkDone(db, item);
+    }
+
+    private static async Task ReportMarkDone(DbService02 db, hostTbl item)
+    {
+        item.reportDone = true;
+        db.DbCtx.hostTbl.Update(item);
+        await db.DbCtx.SaveChangesAsync();
+    }
+
+    public class FileRow
+    {
+        public string Category { get; set; } = "";
+        public string Link { get; set; } = "";
+    }
 }
