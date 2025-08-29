@@ -1,8 +1,30 @@
-﻿@using Reports.Models
+﻿@using System.Diagnostics
+@using Reports.Models
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <style>
+        .badge {
+            display: inline-block;
+            padding: .35em .65em;
+            font-size: .75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: .25rem;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .bg-warning {
+            background-color: #ffc107!important;
+        }
+        .text-dark {
+            color: #212529 !important;
+        }
         .green-button {
             background-color: #28a745; /* Bootstrap green */
             color: white;
@@ -16,7 +38,30 @@
             .green-button:hover {
                 background-color: #218838; /* Darker green on hover */
             }
-
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            text-align: center;
+            text-decoration: none;
+            vertical-align: middle;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            border-radius: .25rem;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+        .btn-info {
+            color: #000;
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+        }
         .red-button {
             background-color: #dc3545; /* Bootstrap red */
             color: white;
@@ -69,19 +114,26 @@
             <div id="list_@link.Id"><a href="@link.ScrapeUri">@link.ScrapeUri</a></div>
         }
     </div>
-
-
-
-
     @foreach (var link in Data.Links)
     {
         <!-- @link.RawLink -->
 
         <div id="row_@link.Id" style="background-color:#ebf5fb; color:black; font-family:arial;margin-bottom:10px;border:solid 1px blue; padding:10px;border-radius:5px;">
             <div id="buttons_@link.Id" class="button-bar" style="margin-bottom:10px;">
-                <button type="button" class="red-button" onclick="removeElementById(@link.Id)">Remove</button>
+                <button type="button" class="btn btn-info" onclick="removeElementById(@link.Id)">Remove</button>
             </div>
-            <div style="margin-bottom:3px;">Link: <a href="@link.ScrapeUri" target="_blank" style="color:blue;font-weight:bolder;">@link.RawLink</a></div>
+            <div style="margin-bottom:3px;">
+                <span style="margin-right:10px;">Link</span>
+                @if (link.StatusCode >= 400)
+                {
+                    <span class="badge bg-danger">@link.StatusCode</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">@link.StatusCode</span>
+                }
+                <a href="@link.ScrapeUri" target="_blank" style="color:blue;font-weight:bolder;margin-left:10px;">@link.RawLink</a>
+            </div>
 
             @foreach (var pg in link.Pages)
             {
