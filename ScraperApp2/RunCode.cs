@@ -129,25 +129,44 @@ public static class RunCode
 
     private static async Task ReportCreateAndSave(DbService02 db, hostTbl item)
     {
-        const string rootFolder = "t:\\scraper-bad-link-reports";
-        Directory.CreateDirectory(rootFolder);
-        Directory.CreateDirectory(Path.Combine(rootFolder, "done"));
-        var filePath = Path.Combine(rootFolder, $"{item.host}.html");
-        var donePath = Path.Combine(rootFolder, "done", $"{item.host}.html");
-        if (File.Exists(donePath))
+        var folders = new ReportFileClass(item.host);
+        if (folders.FileInQueueOrDone)
         {
-            if (!File.Exists(filePath))
+            if (!File.Exists(folders.SaveAs))
             {
                 return;
             }
-
-            File.Delete(filePath); // file should not be here if done file exists.
+            File.Delete(folders.SaveAs); // file should not be here if done file exists.
             return;
         }
-
         var reportText = await ScrapeReport.ProcessRazor(db, $"https://{item.host}");
-        await File.WriteAllTextAsync(filePath, reportText);
+        await File.WriteAllTextAsync(folders.SaveAs, reportText);
     }
+
+    public class ReportFileClass
+    {
+        public ReportFileClass(string hostName)
+        {
+            FileName = $"{hostName}.html";
+            RootFolder = "t:\\scraper-bad-link-reports";
+            Directory.CreateDirectory(RootFolder);
+            SaveAs = Path.Combine(RootFolder, FileName);
+            QueueFolder = Path.Combine(RootFolder, "queue");
+            Directory.CreateDirectory(QueueFolder);
+            DoneFolder = Path.Combine(QueueFolder, "done");
+            Directory.CreateDirectory(DoneFolder);
+            FileInQueueOrDone = File.Exists(Path.Combine(QueueFolder, FileName)) || File.Exists(Path.Combine(DoneFolder, FileName));
+        }
+        public string SaveAs { get; }
+        public string FileName { get; }
+        public string RootFolder { get;  }
+        public string QueueFolder { get; }
+        public string DoneFolder { get; }
+
+        public bool FileInQueueOrDone { get; }
+
+    }
+
 
     private static async Task ReportRunEach(DbService02 db, hostTbl item, bool saveChanges = true)
     {
